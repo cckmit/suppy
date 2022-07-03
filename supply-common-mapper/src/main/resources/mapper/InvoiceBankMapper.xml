@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.InvoiceMapper">
+
+    <!--SELECT
+    td.deliver_billno 发货单号,
+    tf.confirm_date 订单确认时间,
+    tf.total_price_bank  平台跟行社总金额,
+    tf.settle_status_bank 发票状态,
+    group_concat( CONCAT_WS(' 数量',tp.NAME,td.deliver_quantity) ) 商品名称
+
+    FROM
+    tb_deliver_detail td
+    INNER JOIN tb_product tp ON product_id = tp.id
+    INNER JOIN tb_org_info ti ON tp.supply_org_id=ti.id
+    INNER JOIN tb_deliver_form tf ON tf.deliver_billno = td.deliver_billno
+    WHERE
+    tf.confirm_date != ""
+    and tf.settle_status_bank = 0
+    GROUP BY td.deliver_billno
+    ORDER BY tf.confirm_date desc-->
+
+<!--  行社向平台索取发票  -->
+    <select id="queryBankInvoice" resultType="java.util.Map" >
+        SELECT
+        td.deliver_billno as bilno,
+        DATE_FORMAT( tf.confirm_date ,'%Y-%m-%d %T') confirmDate,
+        tf.total_price_bank as  totalPrice,
+        tf.settle_status_bank as state,
+        group_concat( CONCAT_WS(' 数量',tp.NAME,td.deliver_quantity)) as goods
+        FROM
+        tb_deliver_detail td
+        INNER JOIN tb_product tp ON product_id = tp.id
+        INNER JOIN tb_org_info ti ON tp.supply_org_id=ti.id
+        INNER JOIN tb_deliver_form tf ON tf.deliver_billno = td.deliver_billno
+        where
+            1=1
+        <if test="status != null">
+            and tf.status = #{status}
+        </if>
+
+        <if test="sellerId != null">
+            and tf.purchase_org_id = #{sellerId}
+        </if>
+        <if test="settleStatus != null">
+            and tf.settle_status_bank = #{settleStatus}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and tf.confirm_date between #{startTime} and #{endTime}
+        </if>
+        GROUP BY td.deliver_billno,tf.confirm_date,tf.total_price_bank,tf.settle_status_bank
+        order by tf.confirm_date desc
+    </select>
+
+
+<!--   平台跟行社的代开总发票价格 -->
+    <select id="querybankInvoiceTotal" resultType="int"   >
+        select sum(total_price_bank) from tb_deliver_form where confirm_date != ""
+        and settle_status_bank = 0  and status = 1
+        <if test="startTime != null and endTime != null">
+            and confirm_date between #{startTime} and #{endTime}
+        </if>
+        <if test="sellerid != null " >
+            and purchase_org_id = #{sellerid}
+        </if>
+    </select>
+
+    <!--改变行社和平台 状态-->
+    <update id="changeBankInvoiceState"  >
+        update tb_deliver_form set settle_status_bank = #{state}  where deliver_billno = #{billno}
+    </update>
+
+   <!-- 查询行社跟平台审核
+    <select id="queryInvoicBankCheck" resultType="com.zjjzfy.pojo.TbDeliverForm" >
+        select * from tb_deliver_form where settle_status = 1 and status = 1
+    </select>-->
+    <update id="updateUpdateDate">
+        update tb_deliver_form set  update_date = now() where deliver_billno = #{billno}
+    </update>
+</mapper>

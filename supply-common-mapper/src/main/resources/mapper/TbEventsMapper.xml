@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.TbEventsMapper">
+
+    <select id="getEventsList" resultType="com.zjjzfy.pojo.TbEvents">
+    SELECT *
+    FROM tb_events e
+    WHERE 1=1
+        <if test="evtClass != null">
+            and  e.evt_class = #{evtClass}
+        </if>
+        <if test="evtClass == null">
+            and  e.evt_class  in (0,1)
+        </if>
+        <if test="evtStatus != null">
+            and e.status =#{evtStatus}
+        </if>
+        <if test="evtStatus == null">
+            and e.status in (0,2)
+        </if>
+        <if test="type == 1">
+            and #{time} between start_time and end_time
+        </if>
+        <if test="type == 2">
+            and start_time > #{time}
+        </if>
+        <if test="type == 3">
+            and #{time} > end_time
+        </if>
+        <if test="type == 4">
+            and end_time is null
+        </if>
+    ORDER BY e.evt_rank
+    </select>
+
+</mapper>

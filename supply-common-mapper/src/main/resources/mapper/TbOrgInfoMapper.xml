@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjjzfy.interfaces.TbOrgInfoMapper">
+    <select id="selectOrg" resultType="java.util.Map">
+        SELECT
+        (
+        SELECT t3.balance - t3.used_banlance FROM tb_org_balance t3
+        WHERE t3.org_id = t.id
+        AND t3.`month` = (SELECT MAX(t4.month) FROM tb_org_balance t4 WHERE t4.org_id = t.id)
+        ) as balance,
+        t.*,
+        (SELECT t2.org_name FROM tb_org_info t2 WHERE t.parent_branchno = t2.branchno LIMIT 1) AS parentOrgName
+        FROM tb_org_info t
+        WHERE 1 = 1
+        <if test="id != null and id != ''">
+            AND t.id = #{id}
+        </if>
+        <if test="userBranchNo != null and userBranchNo != ''">
+            AND (t.branchno = #{userBranchNo} OR t.parent_branchno = #{userBranchNo})
+        </if>
+        <if test="branch != null and branch != ''">
+            AND t.branchno = #{branch}
+        </if>
+        <if test="branchName != null and branchName != ''">
+            AND t.org_name LIKE '%${branchName}%'
+        </if>
+        <if test="contact != null and contact != ''">
+            AND t.contact = #{contact}
+        </if>
+        <if test="telephone != null and telephone != ''">
+            AND t.telephone = #{telephone}
+        </if>
+        <if test="type != null and type != '' and type != 0">
+            AND t.type = #{type}
+        </if>
+        ORDER BY t.create_date DESC
+    </select>
+
+    <select id="selectOrgUsedBalance" resultType="java.lang.Double">
+        SELECT SUM(balance) AS usedBalance
+        FROM tb_org_info t
+        WHERE t.parent_branchno = #{branch}
+        <if test="branch2 != null and branch2 != ''">
+            AND t.branchno != #{branch2}
+        </if>
+    </select>
+
+    <select id="selectNotDeleteOrgInfo" resultType="java.util.Map">
+        select * from tb_org_info where is_delete = 0
+    </select>
+</mapper>

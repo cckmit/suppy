@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjjzfy.interfaces.TbRepositoryMapper">
+
+    <update id="updateInputBatch" parameterType="java.util.List">
+        <!-- 接收list参数，循环着组装sql语句，注意for循环的写法
+             separator=";" 代表着每次循环完，在sql后面放一个分号
+             item="cus" 循环List的每条的结果集
+             collection="list" list 即为 map传过来的参数key -->
+        <foreach collection="cartList" index="index" open="" close="" separator=";" item="item">
+            update tb_repository
+            <set>
+                quantity = quantity + #{item.productQuality}
+            </set>
+            <where>
+                supply_org_id= #{item.supplyOrgId} and product_id = #{item.productId}
+            </where>
+        </foreach>
+    </update>
+
+    <update id="updateOutputBatch" parameterType="java.util.List">
+        <foreach collection="cartList" index="index" open="" close="" separator=";" item="item">
+            update tb_repository
+            <set>
+                quantity = quantity - #{item.productQuality}
+            </set>
+            <where>
+                supply_org_id= #{item.supplyOrgId} and product_id = #{item.productId}
+            </where>
+        </foreach>
+    </update>
+
+    <update id="purchaserStockOutputBatch" parameterType="java.util.List">
+        <foreach collection="cartList" index="index" open="" close="" separator=";" item="item">
+            update tb_repository
+            <set>
+                quantity = quantity - #{item.productQuality}
+            </set>
+            <where>
+                supplier_id= #{supplierId} and product_id = #{item.productId}
+            </where>
+        </foreach>
+    </update>
+
+    <update id="addOneProductRepository">
+        update tb_repository set quantity = quantity + #{num},quantity_total = quantity_total + #{num}
+        where supply_org_id = #{supplyOrgId} and product_id = #{pId}
+    </update>
+
+    <update id="updateInput">
+        update tb_repository set quantity = quantity + #{quantity},
+        quantity_total = quantity_total + #{quantity}
+        WHERE supplier_id= #{supplierId} and product_id = #{productId}
+    </update>
+
+    <update id="updateOutput">
+        update tb_repository set quantity = quantity - #{quantity}
+        WHERE supplier_id= #{supplierId} and product_id = #{productId}
+    </update>
+
+    <select id="queryRepository" resultType="java.util.Map">
+        SELECT
+            tor.org_name orgName,
+            tp.NAME pName,
+            tp.BRAND brand,
+            tr.quantity num,
+            tr.quantity_total historyNum,
+            tr.supply_org_id supplyOrgId,
+            tr.product_id proId
+        FROM
+            tb_repository tr
+            INNER JOIN tb_org_info tor ON tr.supply_org_id = tor.id
+            INNER JOIN tb_product tp ON tp.id = tr.product_id
+        where
+            1=1
+            <if test="supplyOrgId != null" >
+               and tr.supply_org_id = #{supplyOrgId}
+            </if>
+            <if test="brand != null and brand != ''" >
+                and tp.BRAND = #{brand}
+            </if>
+            <if test="goodsName != null and goodsName != ''" >
+                and tp.NAME like #{goodsName}
+            </if>
+            order by historyNum desc
+
+
+    </select>
+
+    <select id="selectBrand" resultType="java.util.Map" >
+        select DISTINCT(brand) from tb_product
+    </select>
+    <select id="selectSuppkyOrg" resultType="java.util.Map" >
+        select id,org_name from tb_org_info
+    </select>
+
+    <update id="ChangeOneProductRepository">
+        update tb_repository set quantity = quantity + #{num},quantity_total = quantity_total + #{total}
+        where supply_org_id = #{supplyOrgId} and product_id = #{pId}
+    </update>
+</mapper>

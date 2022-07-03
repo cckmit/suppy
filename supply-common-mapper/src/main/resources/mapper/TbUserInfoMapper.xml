@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjjzfy.interfaces.TbUserInfoMapper">
+    <select id="selectUser" resultType="java.util.Map">
+        SELECT
+        t.*,toi.org_name, tr.description, toi2.org_name AS 'parentOrgName',toi.type
+        FROM tb_user_info t
+        LEFT JOIN tb_org_info toi ON t.orgid = toi.id
+        LEFT JOIN tb_user_role tur ON tur.uid = t.uid
+        LEFT JOIN tb_role tr ON tr.id = tur.role_id
+        LEFT JOIN tb_org_info toi2 ON toi2.branchno = toi.parent_branchno
+        WHERE 1 = 1
+        <if test="username != null and username != ''">
+            AND t.username = #{username}
+        </if>
+        <if test="name != null and name != ''">
+            AND t.name LIKE '%${name}%'
+        </if>
+        <if test="orgId != null and orgId != 0">
+            AND toi.id = #{orgId}
+        </if>
+        <if test="branchNo != null and branchNo != ''">
+            AND (toi.branchno = #{branchNo} OR toi.parent_branchno = #{branchNo})
+        </if>
+        <if test="roleId != null and roleId != 0">
+            AND tr.id = #{roleId}
+        </if>
+        ORDER BY t.uid DESC
+    </select>
+
+    <insert id="insertUseGeneratedKeys" useGeneratedKeys="true" keyProperty="uid"
+            parameterType="com.zjjzfy.pojo.TbUserInfo">
+        insert into tb_user_info
+        (
+            username, name, password,
+            salt, state, orgid,
+            addtime, operator, last_pwd_modifytime,
+            last_login_time, remark,column1
+        )
+        values
+        (
+            #{username,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+            #{salt,jdbcType=VARCHAR}, #{state,jdbcType=TINYINT}, #{orgid,jdbcType=INTEGER},
+            #{addtime,jdbcType=TIMESTAMP}, #{operator,jdbcType=INTEGER}, #{lastPwdModifytime,jdbcType=TIMESTAMP},
+            #{lastLoginTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}, #{column1,jdbcType=VARCHAR}
+        )
+    </insert>
+</mapper>

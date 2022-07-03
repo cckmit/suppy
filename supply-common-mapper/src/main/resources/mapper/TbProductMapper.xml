@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.TbProductMapper">
+
+  <!--<select id="selectProductAndStock" resultMap="productSaleVolumeMap">
+      select p.*,ifnull(r.quantity,0) as quantity
+      from tb_product p left join tb_repository r on p.ID = r.product_id
+      where p.product_status = 1
+      <if test="label != null">
+          and product_label = #{label}
+      </if>
+      <if test="order != null">
+          order by ${order}
+      </if>
+  </select>
+
+  <resultMap id="productSaleVolumeMap" type="com.zjjzfy.pojo.dto.ProductDto">
+      <association property="salesVolume" column="id" javaType="java.lang.Integer" select="sumSaleVolume"/>
+  </resultMap>
+
+  <select id="sumSaleVolume" resultType="java.lang.Integer">
+      select ifnull(sum(d.deliver_quantity),0) as sales_volume
+      from tb_deliver_detail d left join tb_deliver_form f on d.deliver_form_id = f.id
+      where f.status = 1 and d.product_id =  #{id}
+  </select>-->
+
+  <select id="selectProductAndStock" resultType="com.zjjzfy.pojo.dto.ProductDto">
+    select p.*,
+    ifnull(r.quantity,0) as quantity,
+    (select ifnull(sum(d.deliver_quantity),0)
+    from tb_deliver_detail d left join tb_deliver_form f on d.deliver_form_id = f.id
+    where f.status = 1 and d.product_id = p.ID
+    ) as salesVolume
+    from tb_product p
+    left join tb_repository r on p.ID = r.product_id AND p.supply_org_id = r.supply_org_id
+    where p.product_status = 1
+    and p.check_status = 2
+    <if test="label != null">
+      and p.product_label = #{label}
+    </if>
+    <if test="categoryId != null">
+      and p.category_id = #{categoryId}
+    </if>
+    <if test="name != null">
+      and p.NAME like CONCAT(CONCAT('%', #{name}), '%')
+    </if>
+    and p.product_prefecture = #{prefecture}
+    <if test="order != null">
+      order by ${order}
+    </if>
+  </select>
+
+  <select id="selectProductDetail" resultMap="selectProductImgsMap">
+    select p.*,ifnull(r.quantity,0) as quantity,p.ID as pId,
+    (select ifnull(sum(d.deliver_quantity),0)
+    from tb_deliver_detail d left join tb_deliver_form f on d.deliver_form_id = f.id
+    where f.status = 1 and d.product_id = p.ID) as salesVolume
+    from tb_product p left join tb_repository r on p.ID = r.product_id
+    and p.supply_org_id = r.supply_org_id
+    where p.product_status = 1 and p.ID = #{proId}
+  </select>
+
+  <resultMap id="selectProductImgsMap" type="com.zjjzfy.pojo.dto.ProductDto">
+    <association property="imgs" column="pId" javaType="java.util.List" select="selectProductImgs"/>
+    <association property="imgs2" column="pId" javaType="java.util.List" select="selectProductImgs2"/>
+  </resultMap>
+
+  <select id="selectProductImgs" resultType="java.lang.String">
+    select img_path from tb_product_img where product_id = #{id} AND type = '0'
+  </select>
+
+  <select id="selectProductImgs2" resultType="java.lang.String">
+    select img_path from tb_product_img where product_id = #{id} AND type = '1'
+  </select>
+
+  <select id="selectProductBySupplyOrgId" resultType="com.zjjzfy.pojo.dto.ProductDto">
+    select p.*,ifnull(r.quantity,0) as quantity,ifnull(r.quantity_total,0) as quantityTotal
+    from tb_product p left join tb_repository r on p.ID = r.product_id
+    where p.product_status = 1
+    <if test="supplyOrgId != null">
+      and r.supply_org_id = #{supplyOrgId}
+    </if>
+    <if test="content != null and content != ''">
+      AND p.`NAME` LIKE '%${content}%'
+    </if>
+    order by quantity desc
+  </select>
+
+  <select id="selectProductBySupplierId" resultType="com.zjjzfy.pojo.dto.ProductDto">
+    select p.*,ifnull(r.quantity,0) as quantity,ifnull(r.quantity_total,0) as quantityTotal
+    from tb_repository r left join tb_product p   on p.ID = r.product_id
+    where r.supplier_id = #{supplierId} order by quantityTotal desc,quantity desc
+  </select>
+
+  <!--统计商品销量 按发货时间 商品ID 供应商机构ID 筛选-->
+  <select id="statisticsCommoditySales" resultType="com.zjjzfy.pojo.dto.ProductDto">
+    select p.ID,
+    p.NAME,
+    i.org_name as supplyName,
+    p.supply_org_id,
+    (select ifnull(sum(d.deliver_quantity), 0)
+    from tb_deliver_detail d
+    left join tb_deliver_form f on d.deliver_form_id = f.id
+    where f.status = 1
+    and d.product_id = p.ID
+    <if test="startTime != null">
+      and f.create_date > #{startTime}
+    </if>
+    <if test="endTime != null">
+      and #{endTime} > f.create_date
+    </if>
+    ) as salesVolume
+    from tb_product p
+    left join tb_org_info i on p.supply_org_id = i.id
+    where 1=1
+    <if test="supplierId != null">
+      and p.supply_org_id = #{supplierId}
+    </if>
+    <if test="pId != null">
+      and p.ID = #{pId}
+    </if>
+  </select>
+
+  <!--查询除在售外的所有商品-->
+  <select id="selectNotONProduct" resultType="com.zjjzfy.pojo.TbProduct">
+    SELECT * FROM tb_product
+    WHERE 1 = 1
+    <if test="supplierId != null and supplierId != ''">
+      AND supply_org_id = #{supplierId}
+    </if>
+    <if test="name != null and name != ''">
+      AND `NAME` LIKE '%${name}%'
+    </if>
+    <if test="categoryId != null and categoryId > 0">
+      AND category_id = #{categoryId}
+    </if>
+    AND (
+    (
+    product_status = 1
+    AND check_status != 2
+    ) OR
+    product_status != 1
+    )
+    ORDER BY
+    create_date DESC
+  </select>
+
+  <select id="selectBestSeller" resultType="com.zjjzfy.pojo.dto.ProductDto">
+        select
+        d.ID AS id,
+        d.IMAGE AS image,
+        d.NAME AS name,
+        d.UNIT AS unit,
+        d.purchase_price AS purchasePrice,
+        ifnull(r.quantity,0) as quantity,
+        (select ifnull(sum(dd.deliver_quantity),0)
+        from tb_deliver_detail dd left join tb_deliver_form f on dd.deliver_form_id = f.id
+        where f.status = 1 and dd.product_id = d.ID
+        ) as salesVolume,
+        ifnull(sum(a.quantity),0) as totalquantity
+        from jf_deliver_detail a
+        join (select * from jf_deliver_order where status=1) b on a.billno = b.billno
+        right join tb_product d on a.product_id=d.ID
+        left join tb_repository r on d.ID = r.product_id AND d.supply_org_id = r.supply_org_id
+        WHERE d.product_status = '1'
+        AND d.check_status = '2'
+        and d.product_prefecture = 0
+        group by d.ID,d.IMAGE,d.NAME,d.UNIT,d.purchase_price,r.quantity
+        order by totalquantity desc
+    </select>
+
+  <select id="selectIsDiscountProduct" resultType="com.zjjzfy.pojo.dto.ProductDto">
+        SELECT p.*, ifnull(r.quantity,0) as quantity
+        FROM tb_product p
+        left join tb_repository r on p.ID = r.product_id AND p.supply_org_id = r.supply_org_id
+        WHERE p.product_status = '1'
+        AND p.check_status = '2'
+        AND p.isDiscount = '1'
+        ORDER BY p.sales DESC
+    </select>
+
+  <select id="selectNewProduct" resultType="com.zjjzfy.pojo.dto.ProductDto">
+        SELECT p.*, ifnull(r.quantity,0) as quantity
+        FROM tb_product p
+        left join tb_repository r on p.ID = r.product_id AND p.supply_org_id = r.supply_org_id
+        WHERE p.product_status = '1'
+        AND p.check_status = '2'
+        AND p.newProduct = '1'
+        and p.product_prefecture = 0
+        ORDER BY -p.sort_id DESC
+    </select>
+
+  <select id="selectProductByCategory" resultType="com.zjjzfy.pojo.dto.ProductDto">
+    SELECT p.*, ifnull(r.quantity,0) as quantity
+    FROM tb_product p
+    left join tb_repository r on p.ID = r.product_id AND p.supply_org_id = r.supply_org_id
+    WHERE p.product_status = '1'
+    AND p.check_status = '2'
+    and p.product_prefecture = 0
+    AND p.category_id IN
+    (
+    SELECT tc.id FROM tb_category tc WHERE tc.id = #{category} OR tc.parent_id = #{category}
+    )
+    ORDER BY p.sort_id DESC
+  </select>
+
+  <update id="addEditProduct">
+    update tb_product set #{name} = #{value} where id =${id}
+  </update>
+  <select id="countShopClickRate" resultType="map">
+        select name,(SUBSTRING_INDEX(clickrate,'-',-1)+0) clickNum from tb_product ORDER BY (SUBSTRING_INDEX(clickrate,'-',-1)+0) desc,name limit 20
+    </select>
+
+  <select id="selectProductByEv" resultType="com.zjjzfy.pojo.dto.ProductDto">
+    SELECT p.*, ifnull(r.quantity,0) as quantity
+    FROM tb_product p
+    left join tb_repository r on p.ID = r.product_id AND p.supply_org_id = r.supply_org_id
+    WHERE p.product_status = '1'
+    AND p.check_status = '2'
+    AND p.ID IN
+    (
+    SELECT ep.product_id from tb_events_product ep where ep.events_id = #{type}
+    )
+    ORDER BY p.sort_id DESC
+
+  </select>
+
+</mapper>

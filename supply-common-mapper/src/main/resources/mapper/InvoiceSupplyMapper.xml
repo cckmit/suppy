@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.InvoiceMapper">
+    <!--  平台向供货商索取发票  -->
+    <!--   显示所有发票
+     SELECT
+        td.deliver_billno 发货单号,
+        td.product_id 商品编号,
+        ti.org_name 供货商名称,
+        tf.confirm_date 订单确认时间,
+        tf.total_price  订单与供货商订单总金额,
+         group_concat( CONCAT_WS(' 数量',tp.NAME,td.deliver_quantity) ) 商品名称
+    FROM
+        tb_deliver_detail td
+        INNER JOIN tb_product tp ON product_id = tp.id
+        INNER JOIN tb_org_info ti ON tp.supply_org_id=ti.id
+        INNER JOIN tb_deliver_form tf ON tf.deliver_billno = td.deliver_billno
+        GROUP BY td.deliver_billno
+     -->
+    <!--    查询全部 供货商和平台 未发发票-->
+    <select id="queryAllInvoiceByClass" resultType="java.util.Map">
+        SELECT
+        td.deliver_billno as bilno,
+        ti.org_name as name,
+        DATE_FORMAT( tf.confirm_date ,'%Y-%m-%d %T') confirmDate,
+        tf.total_price as totalPrice,
+        group_concat( CONCAT_WS(' 数量',tp.NAME,td.deliver_quantity)) as goods
+        FROM
+        tb_deliver_detail td
+        INNER JOIN tb_product tp ON product_id = tp.id
+        INNER JOIN tb_org_info ti ON tp.supply_org_id=ti.id
+        INNER JOIN tb_deliver_form tf ON tf.deliver_billno = td.deliver_billno
+        where
+        tf.settle_status = 0
+        <if test="status != null">
+            and tf.status = #{status}
+        </if>
+
+        <if test="sellerId != null">
+            and tf.supply_org_id = #{sellerId}
+        </if>
+        <if test="settleStatus != null">
+            and tf.settle_status = #{settleStatus}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and tf.confirm_date between #{startTime} and #{endTime}
+        </if>
+        GROUP BY td.deliver_billno,ti.org_name,tf.confirm_date,tf.total_price
+        order by tf.confirm_date desc
+    </select>
+
+    <!--    查看供货跟平台 未开发票金额-->
+    <select id="queryInvoiceTotal" resultType="int">
+        select sum(total_price) from tb_deliver_form where
+        settle_status = 0 and status = 1
+        <if test="startTime != null and endTime != null">
+            and confirm_date between #{startTime} and #{endTime}
+        </if>
+        <if test="sellerId != null ">
+            and supply_org_id = #{sellerId}
+        </if>
+    </select>
+
+
+    <!--改变行社和供货商 状态-->
+    <update id="changeSupplyInvoiceState">
+        update tb_deliver_form set settle_status = #{state} where deliver_billno = #{billno}
+    </update>
+
+    <!--    查询发票历史记录  -->
+    <select id="queryInvoiceHistory" resultType="map">
+
+        SELECT
+        ti.application_date,
+        ti.total,
+        ti.state,
+        ti.invoice_type,
+        ti.deliver_billno,
+        tb.org_name applicater,
+        toi.org_name supplyer,
+        ti.invoice_id
+        FROM
+        tb_invoice ti
+        INNER JOIN tb_org_info tb ON ti.applicater_id = tb.id INNER JOIN tb_org_info toi on ti.supplier_id = toi.id
+
+        <if test="startTime != null and endTime != null">
+            and ti.application_date between #{startTime} and #{endTime}
+        </if>
+        <if test="checkType != null ">
+            and ti.state = #{checkType}
+        </if>
+        <if test="supplier != null">
+            and toi.org_name like "%"#{supplier}"%"
+        </if>
+        <if test="invoice_id != null">
+            and ti.invoice_id = #{invoice_id}
+        </if>
+        <if test="applicaterId != null">
+            and ti.applicater_id = #{applicaterId}
+        </if>
+        order by ti.application_date desc
+    </select>
+
+    <!--    模糊查询发票-->
+    <select id="queryInvoiceLikeId" resultType="com.zjjzfy.pojo.TbInvoice">
+        SELECT * FROM tb_invoice where 1=1
+        <if test="invoiceId != null">
+            and invoice_id like "%"#{invoiceId}"%"
+        </if>
+        <if test="supplier != null">
+            and supplier like "%"#{supplier}"%"
+        </if>
+
+    </select>
+
+    <!--查询所有供货商 行社-->
+    <select id="querySellersAll" resultType="com.zjjzfy.pojo.TbOrgInfo">
+        select * from tb_org_info where type = #{type} and is_delete = 0
+    </select>
+
+    <!--查询审核-->
+    <select id="queryInvoicCheck" resultType="map">
+        select tf.deliver_billno,ti.org_name,tf.update_date,tf.total_price_bank from tb_deliver_form tf INNER JOIN
+        tb_org_info ti on ti.id = tf.supply_org_id
+        where tf.status = 1
+        <if test="settleStatus != null">
+            and tf.settle_status = #{settleStatus}
+        </if>
+        <if test="supplierId != null">
+            and tf.supply_org_id = #{supplierId}
+        </if>
+        <!--下面两个是行社  上面两个是供货-->
+        <if test="settleStatusBank != null">
+            and tf.settle_status_bank = #{settleStatusBank}
+        </if>
+        <!--        <if test="purchaseId != null">-->
+        <!--            and tf.purchase_org_id = #{purchaseId}-->
+        <!--        </if>-->
+        <if test="startTime != null and endTime != null">
+            and application_date between #{startTime} and #{endTime}
+        </if>
+        ORDER BY tf.confirm_date DESC
+    </select>
+
+    <select id="queryInvoiceCheck2" resultType="map">
+        SELECT
+        ti.application_date,
+        ti.total,
+        ti.state,
+        ti.invoice_type,
+        ti.deliver_billno bilno,
+        tb.org_name applicater,
+        toi.org_name supplyer
+        FROM
+        tb_invoice ti
+        INNER JOIN tb_org_info tb ON ti.applicater_id = tb.id INNER JOIN tb_org_info toi on ti.supplier_id = toi.id
+        where state = 1
+        <if test="startTime != null and endTime != null">
+            and application_date between #{startTime} and #{endTime}
+        </if>
+        <if test="sellerId != null">
+            and  supplier_id =  #{sellerId}
+        </if>
+        <if test="applicater != null">
+            and  applicater_id =  #{applicater}
+        </if>
+        order by ti.application_date desc
+    </select>
+    
+    <update id="changeInvoiceState">
+        update tb_invoice set state = #{state} where deliver_billno = #{billno}
+    </update>
+
+</mapper>

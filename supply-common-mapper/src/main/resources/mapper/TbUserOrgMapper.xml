@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.TbUserOrgMapper">
+    <select id="getIndentorUser" resultType="java.util.Map">
+        SELECT
+            tui.*, toi.org_name, tr.role, tr.description
+        FROM tb_user_info tui
+        JOIN tb_org_info toi ON tui.orgid = toi.id
+        JOIN tb_user_role tur ON tur.uid = tui.uid
+        JOIN tb_role tr ON tr.id = tur.role_id
+        WHERE toi.type = 2
+        <if test="nickname != null and nickname != ''">
+            AND tui.`name` LIKE '%${nickname}%'
+        </if>
+        <if test="username != null and username != ''">
+            AND tui.username = #{username}
+        </if>
+        <if test="branchNo != null and branchNo != ''">
+            AND (toi.branchno = #{branchNo} OR toi.parent_branchno = #{branchNo})
+        </if>
+    </select>
+
+    <select id="selectChildId" resultType="java.lang.Integer">
+        SELECT
+            tui.uid
+        FROM tb_user_org tuo
+        JOIN tb_org_info toi ON toi.id = tuo.org_id
+        JOIN tb_user_info tui ON tui.orgid = toi.id
+        WHERE 1 = 1
+        <if test="uId != null and uId != ''">
+            AND tuo.user_id = #{uId}
+        </if>
+    </select>
+
+    <select id="selectUserOrgId" resultType="java.lang.Integer">
+        SELECT
+            tuo.org_id
+        FROM
+            tb_user_org tuo
+        WHERE
+            1 = 1
+        <if test="uId != null and uId != ''">
+            AND tuo.user_id = #{uId}
+        </if>
+    </select>
+</mapper>

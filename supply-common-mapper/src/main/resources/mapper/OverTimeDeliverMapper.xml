@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.OverTimeDeliverMapper">
+
+    <select id="selectOverTimeDelivers" resultType="com.zjjzfy.pojo.TbDeliverForm">
+        select
+          id as id,
+          deliver_billno as deliverBillno,
+          purchaser_id as purchaserId,
+          supplier_id as supplierId,
+          purchase_billno as purchaseBillno,
+          purchase_form_id as purchaseFormId,
+          total_price as totalPrice,
+          status as status,
+          settle_status as settleStatus,
+          deliver_person_id as deliverPersonId,
+          deliver_date as deliverDate,
+          confirm_person_id as confirmPersonId,
+          confirm_date as confirmDate,
+          create_date as createDate,
+          update_date as updateDate,
+          purchase_org_id as purchaseOrgId,
+          supply_org_id as supplyOrgId,
+          total_quantity as totalQuantity,
+          liquidation_id as liquidationId,
+          liquidation_time as liquidationTime,
+          total_price_bank as totalPriceBank,
+          settle_status_bank as settleStatusBank,
+          liquidation_bank_id as liquidationBankId,
+          liquidation_bank_time as liquidationBankTime
+        from tb_deliver_form
+        where 1 = 1
+            and (status is not null and status = '0')
+            and (create_date is not null and create_date &lt;= #{twoDaysEarly})
+        order by id asc
+    </select>
+
+    <update id="updatePurchaseFormQuantityByDeliverFormId">
+        UPDATE tb_purchase_detail aa INNER JOIN (
+        SELECT b.purchase_form_id,a.product_id,a.deliver_quantity
+        FROM tb_deliver_detail a LEFT JOIN tb_deliver_form b
+    ON a.deliver_form_id = b.id
+WHERE a.deliver_form_id =#{deliverFormId}) bb
+    ON aa.purchase_form_id = bb.purchase_form_id AND aa.product_id = bb.product_id
+SET aa.storage_quantity = aa.storage_quantity + bb.deliver_quantity,
+  aa.surplus_quantity = aa.surplus_quantity - bb.deliver_quantity;
+    </update>
+
+    <update id="updateDeliverFormStatusByDeliverFormId">
+        UPDATE tb_deliver_form
+        SET  status='1'
+        WHERE id=#{deliverFormId}
+    </update>
+</mapper>

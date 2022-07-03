@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.HomeMapper">
+
+    <!--等待发货订单-->
+    <select id="countWaitOrder" resultType="Map">
+        SELECT IFNULL(count(*),0) countAll,IFNULL(sum(total_price),0) sumTotal from tb_deliver_form where status =
+        #{state}
+        <if test="supplierId != null">
+            and supply_org_id = #{supplierId} or supply_org_id in
+            (SELECT
+            to1.id
+            FROM
+            tb_org_info to1
+            JOIN tb_org_info to2 ON to1.parent_branchno = to2.branchno
+            WHERE
+            to2.id = #{supplierId})
+        </if>
+        <if test="applicaterId != null">
+            and purchase_org_id = #{applicaterId} or purchase_org_id in
+            (SELECT
+                to1.id
+            FROM
+                tb_org_info to1
+            JOIN tb_org_info to2 ON to1.parent_branchno = to2.branchno
+            WHERE
+                to2.id = #{applicaterId})
+        </if>
+    </select>
+
+    <!--统计昨天 订单数 订单总价-->
+    <select id="countOrderYester" resultType="Map">
+        SELECT IFNULL(count(*),0) countAll,IFNULL(sum(total_price),0) sumTotal from tb_deliver_form where TO_DAYS(
+        NOW()) - TO_DAYS( create_date) <![CDATA[<=]]> 1
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="supplierId != null">
+            and supply_org_id = #{supplierId} or supply_org_id in
+            (SELECT
+                to1.id
+            FROM
+                tb_org_info to1
+            JOIN tb_org_info to2 ON to1.parent_branchno = to2.branchno
+            WHERE
+                to2.id = #{supplierId})
+        </if>
+        <if test="applicaterId != null">
+            and purchase_org_id = #{applicaterId} or purchase_org_id in
+            (SELECT
+                to1.id
+            FROM
+                tb_org_info to1
+            JOIN tb_org_info to2 ON to1.parent_branchno = to2.branchno
+            WHERE
+                to2.id = #{applicaterId})
+        </if>
+    </select>
+
+    <!--昨天完成的订单数 订单总价-->
+    <select id="countYesterOrdered" resultType="Map">
+         SELECT IFNULL(count(*),0) countAll,IFNULL(sum(total_price),0) sumTotal from tb_deliver_form where TO_DAYS( NOW()) - TO_DAYS( confirm_date) <![CDATA[<=]]> 1
+        <if test="supplierId != null">
+            and supply_org_id = #{supplierId} or supply_org_id in
+            (SELECT
+            to1.id
+            FROM
+            tb_org_info to1
+            JOIN tb_org_info to2 ON to1.parent_branchno = to2.branchno
+            WHERE
+            to2.id = #{supplierId})
+        </if>
+        <if test="applicaterId != null">
+            and purchase_org_id = #{applicaterId} or purchase_org_id in
+            (SELECT
+            to1.id
+            FROM
+            tb_org_info to1
+            JOIN tb_org_info to2 ON to1.parent_branchno = to2.branchno
+            WHERE
+            to2.id = #{applicaterId})
+        </if>
+    </select>
+    <!--待开发票-->
+    <select id="countWaitInvoice" resultType="map">
+        select IFNULL(count(*),0) countAll,IFNULL(sum(total),0) sumTotal from tb_invoice where state = #{state}
+        <if test="supplierId != null">
+            and supplier_id = #{supplierId} or supplier_id in
+            (SELECT
+            to1.id
+            FROM
+            tb_org_info to1
+            JOIN tb_org_info to2 ON to1.parent_branchno = to2.branchno
+            WHERE
+            to2.id = #{supplierId})
+        </if>
+        <if test="applicaterId != null">
+            and applicater_id = #{applicaterId} or applicater_id in
+            (SELECT
+            to1.id
+            FROM
+            tb_org_info to1
+            JOIN tb_org_info to2 ON to1.parent_branchno = to2.branchno
+            WHERE
+            to2.id = #{applicaterId})
+        </if>
+    </select>
+    <!--表格统计-->
+    <select id="countOrderData" resultType="map">
+        SELECT
+        month (create_date) createMonth,
+        sum(total_price) createMonthSum, <!--#平台跟供货商-->
+        sum(total_quantity) quantMonthSum, <!--#发货商品数量-->
+        sum(total_price_bank) bankMonthSum, <!--#平台跟行社-->
+        sum(total_price_bank) -sum(total_price) profit <!--#差价-->
+        FROM
+        tb_deliver_form
+        WHERE
+        YEAR ( create_date ) = year(NOW())
+        GROUP BY
+        month (create_date)
+    </select>
+
+
+
+</mapper>

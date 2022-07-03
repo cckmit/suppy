@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.TbBalanceRecordMapper">
+    <select id="selectOrgBalance" resultType="java.util.Map">
+        SELECT
+            oi.org_name AS orgName,
+            ui.`name` AS userName,
+            br.occurdate,
+            CASE WHEN br.remark = "额度增加" THEN (br.balance - br.money)
+            WHEN br.remark = "额度减少" THEN (br.balance + br.money)
+            ELSE 0 END AS lastQuota,
+            br.money,
+            br.balance,
+            br.remark
+        FROM `tb_balance_record` br
+        LEFT JOIN tb_org_info oi ON br.org_id = oi.id
+        LEFT JOIN tb_user_info ui ON ui.uid = br.user_id
+
+        AND oi.org_name IS NOT NULL
+        <if test="orgId != null and orgId > 0">
+            AND oi.id = #{orgId}
+        </if>
+        <if test="orgName != null and orgName != ''">
+            AND oi.org_name LIKE '%${orgName}%'
+        </if>
+        ORDER BY br.id DESC
+    </select>
+</mapper>

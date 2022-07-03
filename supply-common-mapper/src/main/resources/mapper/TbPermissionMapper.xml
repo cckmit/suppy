@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjjzfy.interfaces.TbPermissionMapper">
+    <select id="selectPermissionAll" resultMap="chlidPermission">
+        SELECT
+            tp.name, tp.id AS value, tp.id AS pid,
+            <![CDATA[ 0 ]]> AS checked, <![CDATA[ 0 ]]> AS disabled
+        FROM `tb_permission` tp
+        WHERE tp.parent_id = 0
+        AND available = 1
+        AND tp.lvl = 1
+    </select>
+
+    <resultMap id="chlidPermission" type="java.util.HashMap">
+        <collection property="list" column="pid" javaType="ArrayList" ofType="Post" select="selctChildPermission"/>
+    </resultMap>
+
+    <select id="selctChildPermission" resultType="java.util.Map">
+        SELECT
+            tp2.name, tp2.id AS value,
+            <![CDATA[ 0 ]]> AS checked, <![CDATA[ 0 ]]> AS disabled
+        FROM `tb_permission` tp2
+        WHERE tp2.parent_id = #{pid}
+        AND available = 1
+    </select>
+    <select id="queryPermissionAll" resultType="com.zjjzfy.pojo.TbPermission">
+        select * from tb_permission where parent_id != 0 and available =1 and url != ""
+    </select>
+</mapper>

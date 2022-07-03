@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjjzfy.interfaces.TbNetworkerMapper">
+
+
+    <select id="selectNetWorker" resultType="java.util.Map">
+        SELECT
+            tn.*,
+            ti.org_name orgName
+        FROM
+            tb_networker tn
+            LEFT JOIN tb_org_info ti ON tn.org_id = ti.id
+            where tn.`status` = '0'
+            <if test="orgId != null" >
+                and tn.org_id = #{orgId}
+            </if>
+    </select>
+    <select id="selectNetWorkRepertory" resultType="java.util.Map">
+        SELECT  p.name,sum(a.total_quantity) as totalsum,sum(jd.quantity) as exchangenum,sum(a.total_quantity) - sum(jd.quantity) as num ,o.org_name as orgname
+        FROM
+            tb_deliver_form a
+        LEFT JOIN tb_deliver_detail b on a.deliver_billno = b.deliver_billno
+        LEFT JOIN tb_product p on p.id = b.product_id
+        LEFT JOIN jf_deliver_detail jd on jd.product_id = p.id
+        left join jf_deliver_order jo on jo.billno = jd.billno
+        LEFT JOIN tb_org_info o on o.id = a.purchase_org_id
+        where a.status = 1 and o.is_delete = 0 and jo.type != 1 and  jo.type != 5
+        <if test="orgId != null">
+            o.id = #{orgId}
+        </if>
+        GROUP BY p.id
+    </select>
+</mapper>

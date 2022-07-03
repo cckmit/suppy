@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjjzfy.interfaces.TbAdvertisementMapper">
+
+    <select id="getAdsByTime" resultType="com.zjjzfy.pojo.TbAdvertisement">
+        select * from tb_advertisement where img is not null
+        <if test="type == 1">
+            and #{time} between start_time and end_time
+        </if>
+        <if test="type == 2">
+            and start_time > #{time}
+        </if>
+        <if test="type == 3">
+            and #{time} > end_time
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="advClassification != null">
+            and adv_classification = #{advClassification}
+        </if>
+        <if test="advPosition != null">
+            and adv_position = #{advPosition}
+        </if>
+        <choose>
+            <when test="type == 4">
+                and  end_time is null order by create_time
+            </when>
+            <otherwise>
+                order by rank
+            </otherwise>
+        </choose>
+
+    </select>
+
+    <select id="getAdsByPosition" resultType="com.zjjzfy.pojo.TbAdvertisement">
+        select * from tb_advertisement where 1=1
+        <if test="type == 1">
+            and #{time} between start_time and end_time
+        </if>
+        <if test="type == 2">
+            and start_time > #{time}
+        </if>
+        <if test="type == 3">
+            and #{time} > end_time
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="advClassification != null">
+            and adv_classification = #{advClassification}
+        </if>
+        <if test="advPosition != null">
+            and adv_position = #{advPosition}
+        </if>
+        <choose>
+            <when test="type == 4">
+<!--                and  end_time is null order by create_time-->
+                order by adv_position
+            </when>
+            <otherwise>
+                order by rank
+            </otherwise>
+        </choose>
+
+    </select>
+    <select id="getAdsByPositionByIndex" resultType="com.zjjzfy.pojo.TbAdvertisement">
+        select * from tb_advertisement where 1=1
+        <if test="type == 2">
+            and start_time > #{time}
+        </if>
+        <if test="type == 3">
+            and #{time} > end_time
+        </if>
+        <if test="status == null">
+            and status in ('1','2')
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="advClassification != null">
+            and adv_classification = #{advClassification}
+        </if>
+        <if test="advPosition != null">
+            and adv_position = #{advPosition}
+        </if>
+        <choose>
+            <when test="type == 4">
+                order by adv_position
+            </when>
+            <otherwise>
+                order by rank
+            </otherwise>
+        </choose>
+
+    </select>
+    <select id="getAdsByPositionByStatus" resultType="com.zjjzfy.pojo.TbAdvertisement">
+        select * from tb_advertisement where 1=1
+
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="status == null">
+            and status = 1
+        </if>
+            order by rank
+    </select>
+
+    <update id="adsDown">
+        UPDATE tb_advertisement SET status = '0' WHERE id = #{id} AND status = '1'
+    </update>
+</mapper>

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.TbDeliverFormMapper">
+    <!--<insert id="insert" parameterType="com.zjjzfy.pojo.TbDeliverForm" useGeneratedKeys="true" keyProperty="id">-->
+    <!--insert into tb_deliver_form (id, deliver_billno, purchaser_id,-->
+    <!--supplier_id, purchase_billno, purchase_form_id,-->
+    <!--total_price, status, settle_status,-->
+    <!--deliver_person_id, deliver_date, confirm_person_id,-->
+    <!--confirm_date, create_date, update_date-->
+    <!--)-->
+    <!--values (#{id,jdbcType=INTEGER}, #{deliverBillno,jdbcType=VARCHAR}, #{purchaserId,jdbcType=INTEGER},-->
+    <!--#{supplierId,jdbcType=INTEGER}, #{purchaseBillno,jdbcType=VARCHAR}, #{purchaseFormId,jdbcType=INTEGER},-->
+    <!--#{totalPrice,jdbcType=DECIMAL}, #{status,jdbcType=TINYINT}, #{settleStatus,jdbcType=TINYINT},-->
+    <!--#{deliverPersonId,jdbcType=INTEGER}, #{deliverDate,jdbcType=TIMESTAMP}, #{confirmPersonId,jdbcType=INTEGER},-->
+    <!--#{confirmDate,jdbcType=TIMESTAMP}, #{createDate,jdbcType=TIMESTAMP}, #{updateDate,jdbcType=TIMESTAMP}-->
+    <!--)-->
+    <!--</insert>-->
+
+    <select id="selectSellerDelivers" resultType="com.zjjzfy.pojo.TbDeliverForm">
+        select * from tb_deliver_form
+        where 1 = 1
+        <if test="status != null">
+            and status = #{status}
+        </if>
+
+        <if test="sellerId != null">
+            and supply_org_id = #{sellerId}
+        </if>
+        <if test="settleStatus != null">
+            and settle_status = #{settleStatus}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and confirm_date between #{startTime} and #{endTime}
+        </if>
+        order by confirm_date desc
+    </select>
+
+    <select id="selectPurchaseDelivers" resultType="com.zjjzfy.pojo.TbDeliverForm">
+        select * from tb_deliver_form
+        where 1 = 1
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="purchaseId != null">
+            and purchase_org_id = #{purchaseId}
+        </if>
+        <if test="settleStatus != null">
+            and settle_status_bank = #{settleStatus}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and confirm_date between #{startTime} and #{endTime}
+        </if>
+        order by confirm_date desc
+    </select>
+
+    <select id="selectByDeliverFormExampleDto" resultType="com.zjjzfy.pojo.dto.DeliverFormDto">
+        select a.*,b.org_name from tb_deliver_form a LEFT JOIN tb_org_info b ON a.supply_org_id = b.id
+        -- where 1 = 1
+        <!--<if test="purchaserId != null">-->
+        <!--and a.purchaser_id = #{purchaserId}-->
+        <!--</if>-->
+
+        <!--<if test="supplyOrgId != null">-->
+        <!--and a.supply_org_id = #{supplyOrgId}-->
+        <!--</if>-->
+        <!--<if test="startDate != '' and startDate != null and endDate != '' and endDate != null">-->
+        <!--<![CDATA[ and DATE_FORMAT(a.create_date, '%Y-%m-%d') BETWEEN DATE_FORMAT(#{startDate}, '%Y-%m-%d') AND DATE_FORMAT(#{startDate}, '%Y-%m-%d') ]]>-->
+        <!--</if>-->
+    </select>
+
+    <select id="statisticsPriceGroupBySettleStatus" resultType="java.util.Map">
+        select settle_status, sum(total_price) as totol,count(*) as count
+        from tb_deliver_form
+        where status = 1
+        <if test="sellerId != null">
+            and supply_org_id = #{sellerId}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and confirm_date between #{startTime} and #{endTime}
+        </if>
+        group by settle_status
+    </select>
+
+    <select id="statisticsPriceGroupBySettleStatusBank" resultType="java.util.Map">
+        select settle_status_bank, sum(total_price_bank) as totol,count(*) as count
+        from tb_deliver_form
+        where status = 1
+        <if test="purchaseId != null">
+            and purchase_org_id = #{purchaseId}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and confirm_date between #{startTime} and #{endTime}
+        </if>
+        group by settle_status_bank
+    </select>
+
+    <select id="statisticsPriceGroupByStatus" resultType="java.util.Map">
+        select status, sum(total_price) as totol ,count(*) as count
+        from tb_deliver_form
+        where 1 = 1
+        <if test="sellerId != null">
+            and supply_org_id = #{sellerId}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and confirm_date between #{startTime} and #{endTime}
+        </if>
+        group by status
+    </select>
+
+    <select id="statisticsPriceGroupByStatusBank" resultType="java.util.Map">
+        select status, sum(total_price_bank) as totol ,count(*) as count
+        from tb_deliver_form
+        where 1 = 1
+        <if test="purchaseId != null">
+            and purchase_org_id = #{purchaseId}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and confirm_date between #{startTime} and #{endTime}
+        </if>
+        group by status
+    </select>
+
+    <update id="branchLiquidationOrders" parameterType="java.util.List">
+        update tb_deliver_form set settle_status = 1 where settle_status = 0 and supply_org_id = #{sellerId} and id in
+        <foreach collection="ids" index="index" item="item" separator="," open="(" close=")">
+            #{item,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+    <update id="branchLiquidationOrdersBank" parameterType="java.util.List">
+        update tb_deliver_form set settle_status_bank = 1 where settle_status_bank = 0 and purchase_org_id =
+        #{purchaseId} and id in
+        <foreach collection="ids" index="index" item="item" separator="," open="(" close=")">
+            #{item,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+    <update id="trueLiquidationOrders" parameterType="java.util.List">
+        update tb_deliver_form set settle_status = 2 , liquidation_id = #{managerId} , liquidation_time = now() where
+        settle_status = 1 and supply_org_id = #{sellerId} and id in
+        <foreach collection="ids" index="index" item="item" separator="," open="(" close=")">
+            #{item,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+    <update id="trueLiquidationOrdersBank" parameterType="java.util.List">
+        update tb_deliver_form set settle_status_bank = 2 , liquidation_bank_id = #{managerId} , liquidation_bank_time =
+        now() where settle_status_bank = 1 and purchase_org_id = #{purchaseId} and id in
+        <foreach collection="ids" index="index" item="item" separator="," open="(" close=")">
+            #{item,jdbcType=INTEGER}
+        </foreach>
+    </update>
+
+    <select id="liquidationAmount" resultType="java.math.BigDecimal">
+        select sum(total_price) from tb_deliver_form
+        where settle_status = 1 and id in
+        <foreach collection="ids" index="index" item="item" separator="," open="(" close=")">
+            #{item,jdbcType=INTEGER}
+        </foreach>
+    </select>
+    <select id="selectDeliveFormById" resultType="java.util.Map">
+        SELECT
+            tf.*,
+            ti.org_name
+        FROM
+            tb_deliver_form tf
+	    LEFT JOIN tb_org_info ti ON tf.purchase_org_id = ti.id
+        where 1= 1
+
+        <if test="purchaseId != null">
+            and tf.purchase_org_id = #{purchaseId}
+        </if>
+        <if test="supplyorgId != null">
+            and tf.supply_org_id = #{supplyorgId}
+        </if>
+        <if test="status != null">
+            and tf.status = #{status}
+        </if>
+        order by id desc
+    </select>
+
+    <select id="queryPurchaseRepository" resultType="com.zjjzfy.pojo.TbRepository">
+        select tdf.purchase_org_id as supplyOrgId,tdf.purchaser_id as supplierId,tdd.product_id as productId,sum(tdd.deliver_quantity)
+    as quantity, sum(tdd.deliver_quantity) as quantityTotal from tb_deliver_form tdf
+            left join tb_deliver_detail tdd on tdf.id = tdd.deliver_form_id
+        where tdf.status = 1 group by tdf.purchaser_id,tdd.product_id;
+    </select>
+
+    <select id="queryDeliverRepository" resultType="com.zjjzfy.pojo.TbRepository">
+        select tdf.supply_org_id as supplyOrgId,tdd.product_id as productId,sum(tdd.deliver_quantity)
+    as quantity from tb_deliver_form tdf
+            left join tb_deliver_detail tdd on tdf.id = tdd.deliver_form_id
+        where tdf.status in (0,1) group by tdf.supply_org_id,tdd.product_id;
+    </select>
+    <select id="selectDeliverCount" resultType="java.util.Map">
+        SELECT
+            tp.`NAME` as name,
+            tp.IMAGE as image,
+            tp.PRICE as price,
+            tp.UNIT as unit,
+            tp.ID as id,
+            SUM( CASE WHEN tf.STATUS != 3 THEN td.deliver_quantity ELSE 0 END ) AS 'sureDeliver',
+            SUM( CASE WHEN tf.STATUS = 1 THEN td.deliver_quantity ELSE 0 END ) AS 'sure',
+            SUM( CASE WHEN tf.STATUS = 2 THEN td.deliver_quantity ELSE 0 END ) AS 'waitSure'
+        FROM
+            tb_deliver_form tf
+            INNER JOIN tb_deliver_detail td ON tf.id = td.deliver_form_id
+            INNER JOIN tb_product tp ON td.product_id = tp.id
+        WHERE 1=1
+            <if test="supplyorgId != null">
+                and tf.supply_org_id = #{supplyorgId}
+            </if>
+        GROUP BY
+            tp.id
+    </select>
+
+</mapper>

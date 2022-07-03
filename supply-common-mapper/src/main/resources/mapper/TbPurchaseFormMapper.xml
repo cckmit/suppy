@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.TbPurchaseFormMapper" >
+    <select id="selectPurchaseBySupplyid" resultType="java.lang.Integer">
+        select DISTINCT c.id from tb_product a join tb_purchase_detail b
+            on a.ID=b.product_id join tb_purchase_form c
+            on b.purchase_form_id=c.id
+          where 1=1
+          <if test="supplyid!=null">
+            and a.supply_org_id=#{supplyid}
+          </if>
+    </select>
+
+    <select id="selectPurchaseDto" resultType="com.zjjzfy.pojo.dto.PurchaseFormDto">
+        select a.*,b.org_name from tb_purchase_form a join tb_org_info b on a.purchase_org_id=b.id
+        where a.purchaser_id in
+        <foreach collection="purchaseIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="status!=null">
+            and a.status = #{status}
+        </if>
+        <if test="checkStatus!=null">
+            and a.check_status =#{checkStatus}
+        </if>
+    </select>
+
+    <select id="deliverSelectPurchaseDto" resultType="com.zjjzfy.pojo.dto.PurchaseFormDto">
+        select a.*,b.org_name from tb_purchase_form a join tb_org_info b on a.purchase_org_id=b.id
+        where a.id in
+        <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="checkStatus!=null">
+            and a.check_status =#{checkStatus}
+        </if>
+    </select>
+
+    <select id="selectByDeliverFormExampleDto" resultType="com.zjjzfy.pojo.dto.DeliverFormDto">
+        select a.*,b.org_name  from tb_deliver_form a LEFT JOIN tb_org_info b ON a.supply_org_id = b.id
+    </select>
+
+    <select id="selectPurchaseFormBySupplyOrgId" resultType="com.zjjzfy.pojo.dto.PurchaseFormDto">
+        select c.*,d.org_name,sended,needed,(case (IFNULL(needed,0)-IFNULL(sended,-1))
+        WHEN 0 THEN 1
+        ELSE 0
+        END) as deliverStatus,a.supply_org_id from (
+        select a.purchase_form_id,b.supply_org_id,sum(a.purchase_quantity) as needed
+        from tb_purchase_detail a join tb_product b
+        on a.product_id = b.ID where b.supply_org_id=#{supplyOrgId}
+        group by a.purchase_form_id,b.supply_org_id) a
+        left join
+        (
+        select purchase_form_id,supply_org_id,sum(total_quantity) as sended from tb_deliver_form
+        where supply_org_id=#{supplyOrgId}
+        and status &lt;&gt; 2
+        GROUP BY purchase_form_id,supply_org_id)
+        b on a.purchase_form_id=b.purchase_form_id
+        RIGHT join tb_purchase_form c
+        on a.purchase_form_id=c.id
+        join tb_org_info d on c.purchase_org_id=d.id
+        where c.check_status=1 and a.supply_org_id=#{supplyOrgId}
+        <if test="status != null" >
+            and c.status = #{status}
+        </if>
+        <if test="purchaseBillo != null" >
+            and c.purchase_billno = #{purchaseBillo}
+        </if>
+        ORDER by deliverStatus asc,c.create_date desc
+    </select>
+
+    <select id="selectPurchaseFormByStatus" resultType="com.zjjzfy.pojo.dto.PurchaseFormDto">
+        select b.*,(case (IFNULL(a.total,0)-IFNULL(b.purchase_quantity,0)) WHEN 0 THEN 1 ELSE 0 END) as deliverStatus,a.total,b.total_quantity
+            from (select sum(b.deliver_quantity)as total,purchase_form_id from tb_deliver_form a
+                    join tb_deliver_detail b on a.id = b.deliver_form_id
+                    where a.supply_org_id = #{supplyOrgId}
+                        and  status &lt;&gt; 2
+                <if test="purchaseFormId!=null">
+                    and a.purchase_form_id=#{purchaseFormId}
+                </if>
+                group by purchase_form_id)a right join
+            (select a.*,sum(b.purchase_quantity) as purchase_quantity,d.org_name from tb_purchase_form a
+                    join tb_purchase_detail b on a.purchase_billno=b.purchase_billno
+                    join tb_product c on b.product_id=c.id
+                    join tb_org_info d on a.purchase_org_id=d.id
+                where 1=1
+                <if test="check!=null and check==true">
+                    and a.check_status=1
+                </if>
+                <if test="purchaseFormId!=null">
+                    and a.id=#{purchaseFormId}
+                </if>
+                and a.status &lt;&gt; 3
+                and a.status &lt;&gt; 0
+                <if test="orgName != null" >
+                    and d.org_name like '%${orgName}%'
+                </if>
+                and c.supply_org_id=#{supplyOrgId}
+            group by a.id) b
+        on a.purchase_form_id = b.id
+        where 1=1
+        <if test="status==1">
+            and  IFNULL(a.total,0) &lt;&gt; IFNULL(b.purchase_quantity,0)
+        </if>
+        <if test="status==2">
+            and  IFNULL(a.total,0) = IFNULL(b.purchase_quantity,0)
+        </if>
+        ORDER by deliverStatus asc,b.create_date desc
+
+    </select>
+    <select id="selectPurchaseOrder" resultType="java.util.Map">
+        SELECT
+            toi.org_name orgName,
+            tp.*
+        FROM
+            tb_purchase_form tp
+            INNER JOIN tb_org_info toi ON tp.purchase_org_id = toi.id
+        where 1= 1
+        <if test="starTime != null and endTime != null" >
+            and tp.create_date between #{starTime} and #{endTime}
+        </if>
+        <if test="orgId != null" >
+            and tp.purchase_org_id = #{orgId}
+        </if>
+        <if test="status != null" >
+            and tp.status = #{status}
+        </if>
+
+    </select>
+
+</mapper>

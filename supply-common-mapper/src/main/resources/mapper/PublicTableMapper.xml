@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjjzfy.interfaces.PublicTableMapper">
+    <select id="countConfirmMoney" resultType="java.lang.Double">
+        select sum(storage_quantity*PRICE) as num from tb_purchase_detail a
+        join tb_product b on a.product_id=b.ID
+        where 1=1
+        <if test="purchase_form_id!=null">
+            and a.purchase_form_id=#{purchase_form_id}
+        </if>
+    </select>
+    <select id="queryPurchaseConfirmProducts" resultType="java.util.HashMap">
+        select name,sum(ontheway)as ontheway,sum(confirmed) as confirmed,
+        (purchase_quality-sum(ontheway)-sum(confirmed))as last,purchase_quality as total from (
+        select c.*,d.purchase_quality,
+        case when a.status=0 then deliver_quality
+        else 0
+        end as ontheway,
+        case when a.status=1 then deliver_quality
+        else 0
+        end as confirmed
+        from tb_deliver_form a join tb_deliver_detail b on a.id=b.deliver_form_id
+        join tb_product c on b.product_id = c.ID
+        join tb_purchase_detail d on d.product_id=c.ID
+        where 1=1
+        <if test="purchase_form_id!=null">
+            d.purchase_form_id =#{purchase_form_id}
+        </if>
+        ) temp GROUP BY temp.ID
+    </select>
+
+    <select id="checkPurchaseFormSurplusQuantity" resultType="java.util.List">
+        SELECT b.surplus_quantity-a.deliver_quantity FROM tb_deliver_detail a
+        INNER JOIN tb_purchase_detail b
+        ON a.purchase_form_id = b.purchase_form_id
+        WHERE a.purchase_form_id =#{purchaseFormId};
+    </select>
+
+
+    <update id="updatePurchaseFormQuantityByDeliverFormId">
+        UPDATE tb_purchase_detail aa INNER JOIN (SELECT b.purchase_form_id,a.product_id,a.deliver_quantity FROM tb_deliver_detail a LEFT JOIN tb_deliver_form b
+    ON a.deliver_form_id = b.id
+WHERE a.deliver_form_id =#{deliverFormId}) bb
+    ON aa.purchase_form_id = bb.purchase_form_id AND aa.product_id = bb.product_id
+SET aa.storage_quantity = aa.storage_quantity + bb.deliver_quantity,
+  aa.surplus_quantity = aa.surplus_quantity - bb.deliver_quantity;
+    </update>
+
+    <update id="rejectPurchaseFormByDeliverFormId">
+        UPDATE tb_repository aa INNER JOIN (SELECT b.supply_org_id,a.product_id,a.deliver_quantity FROM tb_deliver_detail a LEFT JOIN tb_deliver_form b
+    ON a.deliver_form_id = b.id WHERE b.id = #{deliverFormId}) bb
+    ON aa.supply_org_id = bb.supply_org_id AND aa.product_id = bb.product_id
+    SET aa.quantity = aa.quantity + bb.deliver_quantity ;
+    </update>
+
+
+    <select id="queryPurchaseFormProductList" resultType="com.zjjzfy.pojo.dto.ProductDto">
+        SELECT b.IMAGE AS image,b.NAME as name,b.BARCODE AS barcode,b.ID as id,a.purchase_price AS price,a.purchase_quantity AS purchaseQuantity,a.surplus_quantity AS surplusQuantity,b.unit FROM tb_purchase_detail a
+        LEFT JOIN tb_product b
+        ON a.product_id = b.ID
+        WHERE a.purchase_form_id = #{purchaseFormId}
+    </select>
+
+    <select id="queryProductListBySupplyOrgId" resultType="com.zjjzfy.pojo.dto.ProductDto">
+        SELECT b.IMAGE AS image,b.NAME as name,b.BARCODE AS barcode,b.ID as id,a.purchase_price AS purchasePrice,b.PRICE AS price,a.purchase_quantity AS purchaseQuantity,a.surplus_quantity AS surplusQuantity,b.UNIT AS unit
+        FROM tb_purchase_detail a
+        INNER JOIN tb_product b
+        ON a.product_id = b.ID
+        WHERE a.purchase_form_id =#{purchaseFormId}
+        AND b.supply_org_id =#{supplyOrgId}
+    </select>
+
+    <select id="queryDeliverFormProductList" resultType="com.zjjzfy.pojo.dto.ProductDto">
+        SELECT b.IMAGE AS image,b.NAME as name,b.BARCODE AS barcode,b.ID as id,b.PRICE AS price,b.purchase_price AS purchasePrice,a.deliver_quantity AS deliverQuantity,b.unit,b.unitExplan FROM tb_deliver_detail a
+        LEFT JOIN tb_product b
+        ON a.product_id = b.ID
+        WHERE a.deliver_form_id = #{deliverFormId}
+    </select>
+
+    <select id="queryPurchaseData" resultType="java.util.HashMap">
+        select d.org_name,c.*,a.total_price,b.* from tb_purchase_form a
+        join tb_purchase_detail b on a.id=b.purchase_form_id
+        join tb_product c on b.product_id=c.ID
+        join tb_org_info d on c.supply_org_id=d.id
+        where 1=1
+        <if test="pid!=null">
+            and a.id=${pid}
+        </if>
+        order by d.org_name desc
+    </select>
+
+    <select id="selectPurchaserInfo" resultType="java.util.HashMap">
+        select * from tb_user_info a join tb_org_info b on a.orgid = b.id
+        where 1=1
+        <if test="purchaserId!=null">
+            and a.uid=#{purchaserId}
+        </if>
+    </select>
+
+    <select id="queryOrderOrgName" resultType="java.lang.String">
+        select DISTINCT d.org_name from tb_purchase_form a
+            join tb_purchase_detail b on a.id=b.purchase_form_id
+            join tb_product c on b.product_id=c.ID
+            join tb_org_info d on c.supply_org_id=d.id
+            where a.id=#{purchaseFormId}
+            order by d.org_name desc
+    </select>
+
+    <select id="selectGiftList" resultType="java.util.HashMap">
+        select a.PRICE as PRICE,
+        a.model as MODEL,
+        a.unit as UNIT,
+        a.name as NAME,
+        b.quantity as `COUNT`,
+        c.org_name as PRODUCER,
+        a.BARCODE as BARCODE,
+        a.id as ID,
+        a.remark as REMARK,
+        a.IMAGE as IMAGE,
+        a.brand as BRAND
+        from tb_product a join tb_repository b on a.ID=b.product_id
+        join tb_org_info c on a.supply_org_id=c.id
+        where 1=1
+        <if test="employeeid!=null">
+            and b.supplier_id=${employeeid}
+        </if>
+        <if test="productid!=null">
+            and a.id=${productid}
+        </if>
+        <if test="orderBy!=null and orderCase!=null">
+            order by #{orderBy} #{orderCase}
+        </if>
+    </select>
+
+    <select id="selectPurchasedProducts" resultType="java.util.HashMap">
+      select * from tb_product a join (
+        select a.id as tempid,sum(purchase_quantity) as totalcount from tb_product a
+          join tb_purchase_detail b on a.id = b.product_id
+          join tb_purchase_form c on b.purchase_form_id=c.id
+          where c.status=2
+        GROUP BY a.ID) b on a.id=b.tempid
+    </select>
+
+    <select id="selectPurchaseDetail" resultType="java.util.HashMap">
+        select d.NAME,coalesce(sum(a.purchase_quantity),0) as quantity from (select c.* from tb_org_info a join
+        tb_purchase_form b on a.id=b.purchase_org_id
+        join tb_purchase_detail c on c.purchase_form_id=b.id
+        where b.status=2
+        and a.id = #{orgid}
+        <if test="startdate!=null and enddate != null">
+            and b.create_date between #{startdate} and #{enddate}
+        </if>
+        )a
+        right join
+        tb_product d on a.product_id=d.id group by d.NAME
+    </select>
+
+    <select id="purchaseProductDetail" resultType="java.util.HashMap">
+
+        select a.org_name,a.name,a.price,coalesce(sum(b.purchase_quantity),0) as purchase_quantity,
+           coalesce(sum(a.quantity),0) as quantity,coalesce(sum(c.quantity),0)as out_quantity
+        from  (
+        # 当前库存
+        select a.*,b.name,b.price,c.org_name from tb_repository a join tb_product b on b.id=a.product_id
+                                                   join tb_org_info c on c.id=a.supply_org_id
+        where a.supply_org_id=#{orgid}
+                   ) a left join
+        (
+        # 已完成 已入库
+        select sum(b.purchase_quantity) as purchase_quantity,purchase_org_id,b.product_id from tb_purchase_form a join tb_purchase_detail b on a.id = b.purchase_form_id
+        where a.create_date between #{startdate} and #{enddate} and a.status = 2 and a.purchase_org_id=#{orgid}
+        group by purchase_org_id,b.product_id)b
+        on a.supply_org_id=b.purchase_org_id and b.product_id=a.product_id
+        left join
+        # 出库量
+        (select a.branchid,product_id,sum(quantity) as quantity from jf_deliver_order a join
+        jf_deliver_detail b on a.billno = b.billno
+        where  a.create_date between #{startdate} and #{enddate} and a.status &gt; 0
+        group by branchid,product_id)c on a.product_id=c.product_id and c.branchid=a.supply_org_id
+        where 1=1
+        and  a.supply_org_id=#{orgid}
+        and a.quantity_total is not null
+        and a.supplier_id is not null
+        group by  org_name,a.name,a.price
+    </select>
+
+    <select id="supplierProductDetail" resultType="java.util.HashMap">
+        select a.org_name,a.name,a.PRICE price,coalesce(sum(c.deliver_quantity),0) as out_quantity
+        ,coalesce(sum(a.quantity),0) as quantity,coalesce(sum(b.quantity),0) as purchase_quantity from (
+        # 库存
+        select a.*,b.name,b.price,c.org_name,c.type from tb_repository a join tb_product b on b.id=a.product_id
+        join tb_org_info c on c.id=a.supply_org_id
+        where a.supply_org_id=#{orgid})  a left join
+        (# 入库
+        select a.supply_org_id,b.product_id,sum(product_quantity)as quantity from tb_repository_record a join tb_repository_record_detail b on a.id=b.record_id
+        where 1=1
+        and a.supply_org_id=#{orgid}
+        and  a.create_date between #{startdate} and #{enddate}
+        group by a.supply_org_id,b.product_id
+        ) b on a.product_id = b.product_id and b.supply_org_id=a.supply_org_id
+        left join (
+        # 出库
+        select a.supply_org_id,sum(b.deliver_quantity) as deliver_quantity,b.product_id from  tb_deliver_form a
+        join tb_deliver_detail b on a.id =b.deliver_form_id
+        where a.create_date between #{startdate} and #{enddate} and status &lt;&gt; 2 group by  a.supply_org_id,b.product_id) c
+        on c.product_id = a.product_id and c.supply_org_id = a.supply_org_id
+        where 1=1
+        and  a.supply_org_id=#{orgid}
+        and a.quantity_total is not null
+        and a.supplier_id is null
+        and a.type =  1
+        group by  org_name,a.name,a.PRICE
+    </select>
+
+    <select id="queryProductsTwoDimensionalCharts" resultType="java.util.HashMap">
+        call `SP_QueryData`(#{orgid},#{startdate},#{enddate})
+    </select>
+
+    <select id="queryBranchTotalPurchase" resultType="java.util.HashMap">
+        select org_name,a.id,sum(c.purchase_quantity) as totalcount from tb_org_info a
+        join tb_purchase_form b on a.id=b.purchase_org_id
+        join tb_purchase_detail c on c.purchase_form_id=b.id
+        join tb_product d on c.product_id=d.id
+        where b.status=2
+        and b.create_date between #{startdate} and #{enddate}
+        <if test="orgid!=null">
+            and a.id = #{orgid}
+        </if>
+        group by a.id,org_name
+    </select>
+
+    <select id="deliverFromDetail" resultType="java.util.Map">
+        SELECT
+        p.IMAGE AS image,p.NAME as name,p.BARCODE AS barcode,p.ID as id,
+        dd.deliver_quantity AS deliverQuantity, dd.deliver_billno AS deliverBillno,
+        DATE_FORMAT(dd.create_date,'%Y-%m-%d %H:%i:%s') AS createDate, dd.deliver_quantity AS deliverQuantity
+        FROM tb_deliver_form df
+        LEFT JOIN tb_deliver_detail dd ON df.deliver_billno = dd.deliver_billno
+        LEFT JOIN tb_product p ON dd.product_id = p.ID
+        WHERE df.purchase_billno = #{pBillno}
+    </select>
+
+    <select id="selectWillPurchaseListByOrgid" resultType="java.util.Map">
+        select c.IMAGE as image,sum(b.quantity) as quantity,b.product_id,c.NAME as name,
+        c.purchase_price as price,c.BRAND as brand,c.BARCODE as barcode,toi.org_name as orgName,
+        tui.username as userName,
+        IFNULL(ex.cust_name,'无')  as uname,
+        IFNULL(ex.cust_addr,'无')  as addr,
+        IFNULL(ex.cust_tel,'无')  as phone,
+        a.create_date as createTime
+        from jf_deliver_order a join jf_deliver_detail b
+            on a.billno = b.billno
+            join tb_product c on b.product_id = c.id
+            join tb_org_info toi on a.branchid = toi.id
+            join tb_user_info tui on tui.orgid = toi.id
+            join jf_deliver_order_extra ex on ex.billno = a.billno
+            where a.status = 1 and a.type = 0
+            <if test="orgid != null">
+                and branchid = #{orgid}
+            </if>
+            <if test="start != null and  end != null">
+                and a.create_date between #{start} and #{end}
+            </if>
+            group by b.product_id,image,name,price,brand,barcode,orgName,userName,uname,addr,phone,createTime
+            order by a.create_date desc,toi.id
+    </select>
+
+    <select id="supplierProductDetails" resultType="java.util.HashMap">
+        select tdf.purchase_org_id,toi.org_name,toi.branchno,toi.parent_branchno,tp.NAME,sum(tdd.deliver_quantity) num
+        FROM tb_deliver_detail tdd
+        join tb_deliver_form tdf on tdd.deliver_form_id=tdf.id
+        join tb_org_info toi on toi.id=tdf.purchase_org_id
+        join tb_product tp on tp.id=tdd.product_id
+       where 1= 1
+        <if test="id!=null">
+            and toi.id = #{id}
+        </if>
+        <if test="startdate!=null and enddate != null">
+            and tdf.create_date between #{startdate} and #{enddate}
+        </if>
+        GROUP BY tdf.purchase_org_id,tp.id
+    </select>
+
+    <select id="selectPurchase" resultType="java.util.HashMap">
+        select tdf.purchase_org_id,toi.branchno,toi.parent_branchno,toi.org_name
+        from tb_deliver_form tdf
+        join tb_org_info toi on toi.id=tdf.purchase_org_id
+        where 1=1
+        <if test="startdate!=null and enddate != null">
+            and tdf.create_date between #{startdate} and #{enddate}
+        </if>
+        <if test="id!=null">
+            and toi.id = #{id}
+        </if>
+        GROUP BY tdf.purchase_org_id
+    </select>
+
+    <select id="selectProuct" resultType="java.util.HashMap">
+        select tp.id,tp.`NAME`
+        from tb_deliver_detail tdd
+        join tb_product tp on tp.id=tdd.product_id
+        <if test="startdate!=null and enddate != null">
+            and tdd.create_date between #{startdate} and #{enddate}
+        </if>
+
+
+        GROUP BY tp.id
+        ORDER BY tp.create_date DESC
+    </select>
+
+
+
+</mapper>
