@@ -1,0 +1,187 @@
+.order_pay_price,.order_pay_date{
+  width: 100%;
+  height: 1.76rem;
+  background: #fff;
+  padding: 0 0.3rem;
+}
+.order_pay_price>div,.order_pay_date>div{
+  width: 100%;
+  height: 0.88rem;
+  border-bottom: 0.01rem solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+}
+.order_pay_price>div:last-child,.order_pay_date>div:last-child{
+  border-bottom: 0;
+}
+.order_pay_price>div span,.order_pay_date>div span{
+  display: block;
+  width: 50%;
+  height: 100%;
+  line-height: 0.88rem;
+}
+.order_pay_price>div span:first-child,.order_pay_date>div span:first-child{
+  font-size: 0.3rem;
+  color: #666;
+}
+.order_pay_price>div span:nth-child(2),.order_pay_date>div span:nth-child(2){
+  font-size: 0.26rem;
+  color: #666;
+  text-align: right;
+}
+.order_pay_sec{
+  width: 100%;
+  height: 1.44rem;
+  background: #fff;
+  margin-top: 0.2rem;
+}
+.order_pay_sec>div{
+  height: 0.72rem;
+  width: 100%;
+  padding: 0 0.3rem;
+}
+.order_pay_sec>div:first-child{
+  display: flex;
+  justify-content: space-between;
+}
+.order_pay_sec>div:first-child div{
+  width: 50%;
+  height: 100%;
+}
+.order_pay_sec>div:first-child div:first-child{
+  font-size: 0.3rem;
+  color: #666666;
+  line-height: 0.9rem;
+}
+.order_pay_sec>div:first-child div:nth-child(2) .order_pay_money{
+  display: block;
+  float: right;
+  height: 100%;
+}
+.order_pay_sec>div:first-child div:nth-child(2) .order_pay_money>span:first-child{
+  display: block;
+  line-height: 0.72rem;
+  height: 0.54rem;
+  margin: 0 0.13rem;
+  font-size: 0.26rem;
+  color: #666;
+}
+.order_money_bottom{
+  width: 100%;
+  display: block;
+  height: 0.06rem;
+  border-left: 0.01rem solid #e0e0e0;
+  border-right: 0.01rem solid #e0e0e0;
+  border-bottom: 0.01rem solid #e0e0e0;
+}
+.order_pay_sec>div:nth-child(2){
+  width: 100%;
+  height: 0.72rem;
+  line-height: 0.6rem;
+  font-size: 0.26rem;
+  color: #999;
+}
+.order_pay_type{
+  width: 100%;
+  height: 1.73rem;
+  background: #fff;
+  margin-top: 0.2rem;
+  padding: 0.3rem;
+}
+.order_pay_type>div:first-child{
+  width: 100%;
+  height: 0.3rem;
+  line-height: 0.3rem;
+  font-size: 0.3rem;
+  color: #666666;
+}
+.order_pay_type>div:nth-child(2){
+  width: 3.25rem;
+  height: 0.54rem;
+  border-radius: 0.27rem;
+  color: #FF807D;
+  border: 0.01rem solid #FF807D;
+  font-size: 0.26rem;
+  text-align: center;
+  line-height: 0.52rem;
+  margin-top: 0.3rem;
+}
+.order_pay_date{
+  margin-top: 0.2rem;
+}
+.order_pay_account{
+  width: 100%;
+  height: 2.28rem;
+  background: #fff;
+  margin-top: 0.2rem;
+  padding: 0 0.3rem;
+}
+.order_pay_account>div:first-child{
+  height: 0.86rem;
+  width: 100%;
+  position: relative;
+  font-size: 0.3rem;
+  color: #666;
+  line-height: 0.86rem;
+}
+.order_pay_account>div:first-child i{
+  position: absolute;
+  right: 0;
+  line-height: 0.86rem;
+  font-size: 0.3rem;
+  color: #CCCCCC;
+}
+.account_detail{
+  width: 100%;
+  height: 0.26rem;
+  line-height: 0.26rem;
+  font-size: 0.26rem;
+  color: #999;
+  margin-top: 0.18rem;
+}
+.account_detail:nth-child(2){
+  margin-top: 0;
+}
+.order_pay_remarks{
+  width: 100%;
+  height: 1.76rem;
+  margin-top: 0.2rem;
+  background: #fff;
+  padding: 0 0.3rem;
+  margin-bottom: 1.08rem;
+}
+.order_pay_remarks>div{
+  width: 100%;
+  height: 0.88rem;
+  border-bottom: 0.01rem solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+}
+.order_pay_remarks>div:last-child{
+  border-bottom: 0;
+}
+.order_pay_remarks>div span{
+  width: 0.9rem;
+  height: 100%;
+  display: block;
+  line-height: 0.9rem;
+  font-size: 0.3rem;
+  color: #666;
+}
+.order_pay_remarks>div input{
+  width: 6rem;
+  height: 0.86rem;
+  border: 0;
+  font-size: 0.26rem;
+  color: #666;
+  text-align: right;
+}
+.order_pay_page button{
+  width: 100%;
+  height: 0.88rem;
+  background: #FF807D;
+  font-size: 0.3rem;
+  color: #FFFFFF;
+  position: fixed;
+  bottom: 0;
+}

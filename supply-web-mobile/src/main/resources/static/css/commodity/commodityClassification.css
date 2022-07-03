@@ -1,0 +1,184 @@
+html,body{
+  height: 100%;
+}
+.commodity_classification{
+  min-height: 100%;
+}
+.commodity_classification_top{
+  width: 100%;
+  position: absolute;
+  height: 0.8rem;
+  background-color: #FF807D;
+  text-align: right;
+  padding-right: 0.3rem;
+  line-height: 0.8rem;
+}
+.commodity_classification_top i{
+  font-size: 0.41rem;
+  display: block;
+  color: #fff;
+}
+.commodity_classification_list {
+  min-height: 100%;
+  padding-top: 0.8rem;
+  background-color: #fff;
+}
+.commodity_classification_list_left{
+  float: left;
+  width: 1.6rem;
+  background-color: #fff;
+  /* height: -webkit-fill-available; */
+}
+.commodity_classification_list_left li{
+  font-size: 0.26rem;
+  color:#666666;
+  height: 0.9rem;
+  width: 100%;
+  text-align: center;
+  line-height: 0.9rem;
+  background-color: #fff;
+  border-bottom: 1px solid #E0E0E0;
+}
+.commodity_classification_list_right{
+  float: right;
+  width: 5.9rem;
+  display: none;
+  background-color: #f0f0f0;
+  min-height: -webkit-fill-available;
+  border-left: 1px solid #f0f0f0;
+}
+.commodity_classification_list .selected{
+  display: block;
+}
+.commodity_classification_right_name{
+  height: 0.9rem;
+  line-height: 0.9rem;
+  margin-left: 0.2rem;
+  font-size: 0.26rem;
+}
+.commodity_classification_right_name .brand{
+  color:#666666;
+  display: inline-block;
+  float: left;
+}
+.commodity_classification_right_name .whole{
+  float: right;
+  color: #999999;
+  margin-right: 0.3rem;
+}
+.commodity_classification_right_name .whole i{
+  font-size: 0.3rem;
+}
+.commodity_classification_right_content {
+  margin-left: 0.18rem;
+  padding: 0.3rem 0.4rem;
+  background-color: #fff;
+}
+.commodity_classification_right_content dl{
+  float: left;
+  margin-bottom: 0.2rem;
+}
+.commodity_classification_right_content dl:nth-child(3n-1){
+  margin: 0 0.5rem;
+}
+.commodity_classification_right_content dt{
+  width: 1.3rem;
+  height: 1.3rem;
+}
+.commodity_classification_right_content dt img{
+  width: 100%;
+  height: 100%;
+}
+.commodity_classification_right_content dd{
+  color: #666666;
+  font-size: 0.22rem;
+  margin-top: 0.1rem;
+  text-align: center;
+}
+.commodity_classification_right_content2 li{
+  background-color: #fff;
+  padding: 0.2rem 0.15rem;
+  padding-right: 0.3rem;
+  margin-bottom: 0.2rem;
+}
+.commodity_classification_right_content2 img{
+  width: 1.51rem;
+  height: 1.51rem;
+  display: inline-block;
+  margin-right: 0.2rem;
+  float: left;
+}
+.commodity_classification_right_content2 dl{
+  float: left;
+}
+.commodity_classification_right_content2 dt{
+  font-size: 0.26rem;
+  color: #333333;
+  width: 3.7rem;
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
+.commodity_classification_right_content2 dd{
+  font-size: 0.2rem;
+  color: #B3B3B3;
+  margin-top: 0.14rem;
+  
+}
+.commodity_classification_right_content2 dd span+span{
+  margin-left: 0.2rem;
+  line-height: 0.26rem;
+}
+.commodity_classification_right_content2 dd .repertory{
+  float: left;
+  height: 0.8rem;
+}
+.commodity_classification_right_content2 .repertory div{
+ font-size: 0.26rem;
+ color: #F95B57;
+ line-height: 0.26rem;
+ text-align: left;
+}
+.commodity_classification_right_content2 .repertory div+div{
+  color: #B3B3B3;
+  font-size: 0.2rem !important;
+  margin-top: 0.1rem;
+}
+.commodity_classification_list_left .active{
+  background-color: #F0F0F0;
+  color: #FF807D;
+}
+.commodity_classification_right_content2_num{
+  width: 1.66rem;
+  height: 0.5rem;
+  float: right;
+  position: relative;
+  margin-top: 0.1rem;
+ 
+}
+.commodity_classification_right_content2_num input{
+  width: 0.7rem;
+  height: 0.41rem;
+  border-top:1px solid rgba(230,230,230,1);
+  border-bottom:1px solid rgba(230,230,230,1);
+  float: left;
+  font-size: 0.26rem;
+  color: #333;
+  padding:0 0.3rem;
+  margin-left: 0.2rem;
+  text-align: center;
+}
+.commodity_classification_right_content2_num i{
+  font-size: 0.5rem;
+  position: absolute;
+}
+.icontubiao-3{
+  left: 0;
+  top:-0.05rem;
+  color: #E6E6E6;
+}
+.iconjia{
+  right: 0;
+  top:-0.05rem;
+  color: #FF807D;
+}
