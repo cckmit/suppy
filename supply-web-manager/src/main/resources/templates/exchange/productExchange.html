@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>兑换出库</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <script type=text/javascript src="js/jquery.min.js"></script>
+</head>
+
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+
+                <div class="layui-card-header layui-form layui-card-header layuiadmin-card-header-auto">
+                    <div class="layui-form-item">
+                        <div class="layui-form layui-col-md6">
+                            <div class="layui-input-inline">
+                                <select name="switchSupplyOrg" id="switchSupplyOrg" lay-verify="required" lay-filter="switchSupplyOrg">
+
+                                </select>
+                            </div>
+                            <div class="layui-input-inline">
+                                <select name="switchBrand" id="switchBrand" lay-filter="switchBrand">
+
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <table class="layui-hide" id="repositorys" lay-filter="repositorys"></table>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="layui/layui/layui.js"></script>
+<script>
+    var supplyOrgId = null;
+    var brand = null;
+    layui.use(['table', 'form', 'layer', 'element'], function () {
+        var table = layui.table,
+            layer = layui.layer,
+            $ = layui.$,
+            element = layui.element,
+            upload = layui.upload,
+            form = layui.form;
+        getRepository(supplyOrgId,brand);
+        function getRepository(supplyOrgId,brand) {
+            table.render({
+                elem: '#repositorys',
+                response: {
+                    statusCode: 200 //规定成功的状态码，默认：0
+                },
+                curr: 1,
+                limit: 10,
+                url: "/mgt/queryRepository",
+                where: {
+                    "supplyOrgId": supplyOrgId,
+                    "brand": brand
+                },
+                cols: [
+                    [
+                        {field: 'orgName', title: '供货商',sort:true},
+                        {field: 'pName', title: '商品名称',minWidth:"450",sort:true},
+                        {field: 'brand', title: '品牌',sort:true},
+                        {field: 'num', title: '库存数量',event: 'setNum',},
+                        {field: 'historyNum', title: '历史库存数量',width:"400"},
+                    ]
+                ],
+                page: true
+            });
+        }
+        form.on('select(switchSupplyOrg)', function (data) {
+            supplyOrgId =data.elem[data.elem.selectedIndex].value
+            getRepository(supplyOrgId,brand);
+        });
+        form.on('select(switchBrand)', function (data) {
+            brand = data.elem[data.elem.selectedIndex].value
+            getRepository(supplyOrgId,brand);
+        });
+        selectRepositry();
+        function selectRepositry(){
+            $.ajax({
+                type: "GET",
+                url: "/mgt/selectRepository",
+                success: function (data) {
+                    console.log(data)
+                    for (var i = 0; i < data.data.brand.length; i++) {
+                        if(i == 0){
+                            $("#switchBrand").append('<option value="" selected>请选择商品品牌</option>');
+                        }
+                        $("#switchBrand").append('<option value="' + data.data.brand[i].brand + '" >' + data.data.brand[i].brand + '</option>');
+                        form.render('select');
+                    }
+                    for (var i = 0; i < data.data.supplyOrg.length; i++) {
+                        if(i == 0){
+                            $("#switchSupplyOrg").append('<option value="" selected>请选择供货商</option>');
+                        }
+                        $("#switchSupplyOrg").append('<option value="' + data.data.supplyOrg[i].id + '" >' + data.data.supplyOrg[i].org_name + '</option>');
+                        form.render('select');
+                    }
+                }
+            });
+        }
+
+        table.on('tool(repositorys)', function(obj){
+
+            var value = obj.value //得到修改后的值
+                ,data = obj.data //得到所在行所有键值
+                ,field = obj.field //得到字段
+                ,num = data.num;//修改前的值
+            if(obj.event === 'setNum'){
+                layer.prompt({
+                    formType: 2
+                    ,title: '修改商品为 ['+ data.pName +'] 的库存数量'
+                    ,value: data.num
+                }, function(value, index){
+                    layer.close(index);
+
+                    //这里一般是发送修改的Ajax请求
+                    if(!(/(^[1-9]\d*$)/.test(value))){
+                        layer.msg('输入的不是正整数');
+                        obj.update({
+                            num: num
+                        });
+                    }else{
+                        $.ajax({
+                            url:"changeRepositoryNum",
+                            type:"GET",
+                            async:true,
+                            data:{
+                                "supplyOrgId":data.supplyOrgId,
+                                "proId":data.proId,
+                                "num":(value -num)
+                            },
+                            dataType:'json',
+                            success:function (data) {
+                                layer.msg( ' 修改成功！');
+                            }
+                        });
+                        obj.update({
+                            num: value
+                        });
+                    }
+
+                });
+            }
+        });
+
+    });
+</script>
+</body>
+
+</html>

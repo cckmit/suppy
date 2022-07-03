@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>报表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+</head>
+<body>
+<div class="layui-fluid">
+  <div class="layui-row layui-col-space15">
+    <div class="layui-col-sm12 layui-col-md12">
+       <div class="layui-card">
+         <div class="layui-card-header">平台订货商供货商报表</div>
+         <div class="layui-card-body">
+           <div id="main" style="width: 100%;height:400px;"></div>
+         </div>
+       </div>
+
+        <div class="layui-card">
+            <div class="layui-card-header">商品访问量</div>
+            <div class="layui-card-body">
+                <div id="main2" style="width: 100%;height:400px;"></div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/echarts.min.js"></script>
+<script src="js/jquery.min.js"></script>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    var date = new Date();
+    var currentMonth = date.getMonth()+1;
+    setTimeout(function () {
+        option = {
+            legend: {},
+            tooltip: {
+                trigger: 'axis',
+                showContent: false
+            },
+            dataset: {
+                source: [
+                    /*['createMonth', '2012', '2013', '2014', '2015', '2016', '2017'],
+                    ['createMonthSum', 41.1, 30.4, 65.1, 53.3, 83.8, 98.7],
+                    ['quantMonthSum', 86.5, 92.1, 85.7, 83.1, 73.4, 55.1],
+                    ['bankMonthSum', 24.1, 67.2, 79.5, 86.4, 65.2, 82.5],
+                    ['profit', 55.2, 67.1, 69.2, 72.4, 53.9, 39.1]*/
+                ]
+            },
+            xAxis: {type: 'category'},
+            yAxis: {gridIndex: 0},
+            grid: {
+                top: 50,
+                width: '50%',
+                bottom: '15%',
+                left: 10,
+                containLabel: true
+            },
+            series: [
+                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+                {
+                    type: 'pie',
+                    id: 'pie',
+                    radius: '30%',
+                    center: ['80%', '50%'],
+                    label: {
+                        formatter: '{b}: {@'+currentMonth+'} ({d}%)'
+                    },
+                    encode: {
+                        itemName: '月份',
+                        value: currentMonth,
+                        tooltip: currentMonth
+                    }
+                }
+            ]
+        };
+        myChart.on('updateAxisPointer', function (event) {
+            var xAxisInfo = event.axesInfo[0];
+            if (xAxisInfo) {
+                var dimension = xAxisInfo.value + 1;
+                myChart.setOption({
+                    series: {
+                        id: 'pie',
+                        label: {
+                            formatter: '{b}: {@[' + dimension + ']} ({d}%)'
+                        },
+                        encode: {
+                            value: dimension,
+                            tooltip: dimension
+                        }
+                    }
+                });
+            }
+        });
+
+        myChart.setOption(option);
+    });
+    getData()
+    function getData(){
+        $.get('countOrderData').done(function (data) {
+            // 填入数据
+            myChart.setOption({
+                dataset: {
+                    source: data
+                },
+            });
+        });
+    };
+    window.addEventListener("resize",function() {
+        this.myChart.resize();
+    });
+</script>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart2 = echarts.init(document.getElementById('main2'));
+    var dataAxis =[];
+    var Clickdata = [];
+    $.get('countShopClickRate').done(function (data) {
+        for(var i =0;i<data.data.length;i++){
+            dataAxis.push(data.data[i].name) ;
+            Clickdata.push(data.data[i].clickNum)
+        }
+    });
+    setTimeout(function () {
+        var yMax = 500;
+        var dataShadow = [];
+        for (var i = 0; i < Clickdata.length; i++) {
+            dataShadow.push(yMax);
+        }
+
+        option2 = {
+            /*title: {
+                text: '特性示例：渐变色 阴影 点击缩放',
+                subtext: 'Feature Sample: Gradient Color, Shadow, Click Zoom'
+            },*/
+            xAxis: {
+                data: dataAxis,
+                axisLabel: {
+                    inside: true,
+                    textStyle: {
+                        color: '#fff'
+                    },
+                    interval:0,//横轴信息全部显示    // rotate:-90,//-30度角倾斜显示
+                    formatter: function (value) {//x轴的文字改为竖版显示
+                        var str = value.split("");
+                        return str.join("\n");// return '{a|' + value + '}';
+                    },
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLine: {
+                    show: false
+                },
+                z: 10
+            },
+            yAxis: {
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    textStyle: {
+                        color: '#999'
+                    }
+                }
+            },
+            dataZoom: [
+                {
+                    type: 'inside'
+                }
+            ],
+            series: [
+                { // For shadow
+                    type: 'bar',
+                    itemStyle: {
+                        normal: {color: 'rgba(0,0,0,0.05)'}
+                    },
+                    barGap:'-100%',
+                    barCategoryGap:'40%',
+                    data: dataShadow,
+                    animation: false
+                },
+                {
+                    type: 'bar',
+                    itemStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(
+                                0, 0, 0, 1,
+                                [
+                                    {offset: 0, color: '#83bff6'},
+                                    {offset: 0.5, color: '#188df0'},
+                                    {offset: 1, color: '#188df0'}
+                                ]
+                            )
+                        },
+                        emphasis: {
+                            color: new echarts.graphic.LinearGradient(
+                                0, 0, 0, 1,
+                                [
+                                    {offset: 0, color: '#2378f7'},
+                                    {offset: 0.7, color: '#2378f7'},
+                                    {offset: 1, color: '#83bff6'}
+                                ]
+                            )
+                        }
+                    },
+                    data: Clickdata
+                }
+            ]
+        };
+
+        var zoomSize = 6;
+        myChart2.on('updateAxisPointer', function (params) {
+            myChart2.dispatchAction({
+                type: 'dataZoom',
+                startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
+                endValue: dataAxis[Math.min(params.dataIndex + zoomSize / 2, Clickdata.length - 1)]
+            });
+        });
+        myChart2.setOption(option2);
+    });
+
+
+
+
+</script>
+</body>
+</html>

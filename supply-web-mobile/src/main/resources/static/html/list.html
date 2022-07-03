@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no" />
+    <title>易订货-列表</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/list.css">
+    <link rel="stylesheet" href="css/swiper.min.css">
+    <link rel="stylesheet" href="css/mescroll.css">
+    <link rel="stylesheet" href="http://at.alicdn.com/t/font_1091326_sr48ma9pxf.css">
+    <style type="text/css">
+      .mescroll{padding-bottom: 0;}
+      .list_main > div{background: #fff;width: 48%;height: 6.22rem;border-radius: 3px;margin:0 1% 2% 1%;}
+      .shopcart_num a { background: rgba(0, 0, 0, 0.6);display: block;border-radius: 30px;width: 0.6rem;z-index: 999}
+    </style>
+  </head>
+  <body>
+      <div id="mescroll" class="mescroll">
+        <div class="index_top_search">
+        <div style="opacity: 0">
+          <i class="iconfont icontubiao-47"></i>
+        </div>
+        <div class="index_top_input" style="opacity: 0">
+          <input type="text" placeholder="搜索商品">
+          <i class="iconfont iconfangdajing"></i>
+        </div>
+        <div class="shopcart_num">
+          <a href="commodity/shopCart.html">
+            <i class="iconfont icontubiao-13"></i>
+            <span>0</span>
+          </a>
+        </div>
+      </div>
+        <div class="index_swiper">
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide" style="background-image:url(image/bannar.png)"></div>
+            <div class="swiper-slide" style="background-image:url(image/bannar.png)"></div>
+          </div>
+          
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+      <div class="list">
+        <div class="list_main" id="dataList">
+        <!-- <div class="list_item">
+          <div class="list_item_image" style="background-image:url(image/img.png)"></div>
+          <div class="list_item_main">
+            <div class="list_item_title">休闲孕妇零食坚果炒货干果无漂白</div>
+            <div class="list_item_sku">
+              <span>200g</span>
+              <span>库存90袋</span>
+            </div>
+            <div class="list_item_price">
+              <div>￥36<span>/袋</span></div>
+              <div class="num">
+                <div class="num_reduce "><i class="iconfont icontubiao-3"></i></div>
+                <div class="num_num">0</div>
+                <div class="num_add"><i class="iconfont iconjia"></i></div>
+              </div>
+            </div>
+          </div>
+        </div> -->
+      </div>
+     </div> 
+    </div>
+    </div>
+
+    <script src="js/mescroll.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/pdlist1.js"></script>
+    <script src="js/swiper.min.js"></script>
+    <script src="js/list.js"></script>
+    <script>
+      $(function () {
+        var mySwiper = new Swiper ('.swiper-container', {
+          loop: true,
+          autoplay: true,
+          pagination: {
+            el: '.swiper-pagination'
+          }
+        })
+      })
+    </script>
+  </body>
+</html>

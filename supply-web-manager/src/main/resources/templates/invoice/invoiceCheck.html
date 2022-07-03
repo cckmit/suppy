@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>发票审核</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <link rel="stylesheet" href="css/global.css" media="all">
+    <script type=text/javascript src="js/jquery.min.js"></script>
+    <script src="layui/layui/layui.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">发票审核</div>
+                <div class="layui-card-header layui-form layui-card-header layuiadmin-card-header-auto" th:style="'display:' + @{(${type}==3 ? 'block' : 'none')} + ''">
+                  <div class="layui-form-item">
+                      <div class="layui-form layui-col-md6">
+                          <div class="layui-input-inline">
+                              <select name="switchSH" id="switchSH" lay-verify="required" lay-filter="switchSH">
+                                  <option value="2">行社</option>
+                                  <option value="1">供货商</option>
+                              </select>
+                          </div>
+                          <div class="layui-input-inline">
+                              <select name="shanghu" id="shanghu" lay-filter="shanghu">
+                                  <option value="">选择商户</option>
+                              </select>
+                          </div>
+                      </div>
+                    <div class="layui-inline fr layui-hide-xs" style="margin-right: 10px;">
+                        <div class="layui-input-inline">
+                            <input type="text" name="insStart" lay-verify="insStart"
+                                   class="layui-input" id="test-laydate-start"
+                                   autocomplete="off"
+                                   placeholder="开始日期">
+                        </div>
+                        <div class="layui-input-inline">
+                            <input type="text" name="insEnd" lay-verify="insEnd"
+                                   class="layui-input" id="test-laydate-end"
+                                   autocomplete="off"
+                                   placeholder="结束日期">
+                        </div>
+                        <button class="layui-btn layui-btn-normal" lay-submit
+                                lay-filter="formDemo" style="vertical-align: super;">确定
+                        </button>
+                    </div>
+                </div>
+                </div>
+                <div class="layui-card-body">
+                    <table id="invoice_check" class="layui-table" lay-filter="table_all"></table>
+                    <!--<script type="text/html" id="NocheckTool">
+                        <a class="layui-btn layui-btn-xs  layui-icon  layui-icon-ok" lay-event="success"></a>
+                        <a class="layui-btn layui-btn-xs  layui-icon  layui-icon-close " lay-event="fail"></a>
+                    </script>-->
+
+                    <div style="text-align: right;padding:20px;">
+                      <button type="button" class="layui-btn audit">审核</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</body><script th:inline="javascript">
+    var type = [[${type}]];
+    var sellerId = [[${sellerId}]];
+</script>
+</html>
+
+<script>
+    layui.use(['table', 'carousel', 'laydate', 'form', 'layer','jquery'], function () {
+        var table = layui.table,
+            carousel = layui.carousel,
+            laydate = layui.laydate,
+            layer = layui.layer,
+            $ = layui.jquery,
+            form = layui.form;
+
+        var state = 0;
+        var startTime = '';
+        var endTime = '';
+        var name = "";
+        var id = [];
+
+        // select 获取全部行社或者供货商
+        form.on('select(switchSH)', function (data) {
+            type = data.elem[data.elem.selectedIndex].value;
+            $('#shanghu').html('')
+            querySeller();
+        });
+
+        querySeller();
+        function querySeller() {
+            $.ajax({
+                type: "GET",
+                url: "/mgt/querySellerAll",
+                data: {
+                    "type": type, /*1代表供货商 2订货方 3 平台*/
+                },
+                success: function (data) {
+                    if (data.data.length != null) {
+                        name = data.data[0].orgName;
+                    }
+                    for (var i = 0; i < data.data.length; i++) {
+                        if(i==0){
+                            $("#shanghu").append('<option value="' + data.data[i].id + '" selected>' + data.data[i].orgName + '</option>');
+                           /* sellerId = data.data[i].id;*/
+                            name = data.data[i].orgName;
+                        }else{
+                            $("#shanghu").append('<option value="' + data.data[i].id + '">' + data.data[i].orgName + '</option>');
+                        }
+                        form.render('select');
+                    }
+                    queryInvoiceCheck();
+                }
+            });
+        }
+
+
+        form.on('select(shanghu)', function (data) {
+            sellerId = data.elem[data.elem.selectedIndex].value;
+            name = data.elem[data.elem.selectedIndex].text;
+            queryInvoiceCheck();
+        });
+
+        checkBillo();
+        function checkBillo(){
+            table.on('checkbox(table_all)', function (obj) {
+                var check1 = $(".layui-table-body .layui-table input[type='checkbox']");
+                id = [];
+                check1.each(function (index, item) {
+                    /*if($(item).prop('checked')){
+                        id.push($(item).parents('tr').find('[name="checkboxInvoice"]').html());
+                    }*/
+                    if($(item).prop('checked')){
+                        id.push($(item).parents('tr').find('td[data-field="bilno"] > div').html())
+                    }
+                });
+                console.log(id);
+                form.render('checkbox');
+            });
+        }
+
+        function changeInvoice(state) {
+            $.ajax({
+                    type: "GET",
+                    url: "/mgt/changeInvoice",
+                    data: {
+                        "billos":id.join(","),
+                        "state": state
+                    },
+                    success: function (data) {
+                    }
+                });
+        }
+
+
+        function queryInvoiceCheck(){
+            table.render({
+                elem: '#invoice_check',
+                cellMinWidth: 80,
+                height: 385,
+                url: "/mgt/queryInvoiceCheck",
+                curr: 1,
+                limit: 10,
+                where: {
+                    "type":type,
+                    "sellerId": sellerId,
+                    "startTime": startTime,
+                    "endTime": endTime,
+                },
+                response: {
+                    statusCode: 200
+                },
+                cols: [
+                    [
+                       /* name:"checkboxInvoice"*/
+                        {type: 'checkbox'},
+                        {field: 'bilno', title: '发票单号'},
+                        {
+                            field: 'supplyer',
+                            title: '发票抬头',
+                          /*  templet: function (d) {
+                                if (type == 1) {
+                                    return '<span >' + d.supplyer + '</span>'
+                                } else {
+                                    return '<span >' + d.applicater + '</span>'
+                                }
+                            }*/
+                        },
+                        {
+                            field: 'application_date',
+                            title: '申请时间',
+                            templet: '<div>{{ layui.util.toDateString(d.application_date, "yyyy-MM-dd HH:mm:ss") }}</div>',
+                            width: 220,
+                            sort: true
+                        },
+                        {field: 'total', title: '发票金额'},
+                        // {width: 200, align: 'center', title: '操作', fixed: 'right', toolbar: '#NocheckTool'}
+                    ]
+                ],
+                page: true
+            });
+        }
+
+        form.on('submit(formDemo)', function (data) {
+            startTime = $("#test-laydate-start").val();
+            endTime = $("#test-laydate-end").val();
+            queryInvoiceCheck();
+        });
+
+
+
+        //开始日期
+        var insStart = laydate.render({
+            elem: '#test-laydate-start'
+            , done: function (value, date) {
+                //更新结束日期的最小日期
+                insEnd.config.min = lay.extend({}, date, {
+                    month: date.month - 1
+                });
+            }
+        });
+        //结束日期
+        var insEnd = laydate.render({
+            elem: '#test-laydate-end'
+        });
+
+        $('.audit').click(function(){
+            if(id==""){
+                layer.alert("请选择发票")
+            }else{
+                layer.open({
+                    content: '确定通过吗?'
+                    ,btn: ['通过', '拒绝']
+                    ,yes: function(index, layero){
+                        changeInvoice(2);
+                        layer.close(index);
+                    }
+                    ,btn2: function(index, layero){
+                        changeInvoice(0);
+                    }
+
+                });
+            }
+        })
+    });
+
+</script>

@@ -1,0 +1,9 @@
+supply:
+  overpayment:
+#    enable: false
+#    order-check: true
+#    order-confirm: false
+#    下面是永康农商行配置
+    enable: true
+    order-check: false
+    order-confirm: true

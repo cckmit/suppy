@@ -1,0 +1,347 @@
+.commodity_page{
+  padding-bottom: 0.98rem;
+}
+.commodity_top{
+  width: 100%;
+  height: 1.68rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+}
+.commodity_top_search{
+  width: 100%;
+  height: 0.88rem;
+  background: #FF807D;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.16rem 0 0.3rem;
+}
+.commodity_top_search>div:first-child{
+  width: 0.4rem;
+  height: 100%;
+  text-align: center;
+  line-height: 0.88rem;
+}
+.commodity_top_search>div:first-child i{
+  display: block;
+  color: #fff;
+  font-size: 0.4rem;
+}
+.commodity_top_search>div:nth-child(2){
+  width: 5.7rem;
+  height: 0.56rem;
+  background: #FF9D97;
+  border-radius: 0.28rem;
+  margin-top: 0.16rem;
+  padding: 0 0.2rem;
+  overflow: hidden;
+}
+.commodity_top_search>div:nth-child(2) span{
+  float: left;
+  font-size: 0.28rem;
+  color: #fff;
+  height: 100%;
+  line-height: 0.56rem;
+}
+.commodity_top_search>div:nth-child(2) i{
+  float: right;
+  font-size: 0.28rem;
+  color: #fff;
+  line-height: 0.56rem;
+}
+.commodity_top_search>div:nth-child(3){
+  width: 0.56rem;
+  height: 100%;
+  position: relative;
+}
+.commodity_top_search>div:nth-child(3) i{
+  display: block;
+  font-size: 0.42rem;
+  color: #fff;
+  line-height: 0.88rem;
+}
+.cart_num{
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  font-size: 0.2rem;
+  color: #FF807D;
+  top: 0.13rem;
+  right: 0.04rem;
+  line-height: 0.3rem;
+  text-align: center;
+}
+.commodity_top_sort{
+  width: 100%;
+  height: 0.8rem;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+}
+.commodity_top_sort>div{
+  width: 33.33%;
+  height: 100%;
+  font-size: 0.28rem;
+  color: #666;
+  position: relative;
+  text-align: center;
+  line-height: 0.8rem;
+}
+.iconxiangshangjiantou-copy-copy-copy-copy,.iconxiangshangjiantou-copy-copy-copy{
+  position: absolute;
+  font-size: 0.16rem;
+  color: #CCCCCC;
+}
+.iconxiangshangjiantou-copy-copy-copy-copy{
+  height: 0.2rem;
+  line-height: 0.2rem;
+  top: 0.23rem;
+}
+.iconxiangshangjiantou-copy-copy-copy{
+  height: 0.2rem;
+  bottom: 0.2rem;
+  line-height: 0.2rem;
+}
+.tab_active{
+  color: #FF807D !important;
+}
+.commodity_list{
+  width: 100%;
+  padding-top: 1.78rem;
+}
+.commodity_list_item{
+  width: 100%;
+  height: 2.9rem;
+  background: #fff;
+  border-bottom: 0.01rem solid #e0e0e0;
+  padding: 0.3rem;
+  display: flex;
+  justify-content: space-between;
+}
+.commodity_image{
+  width: 2.3rem;
+  height: 2.3rem;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.commodity_main{
+  width: 4.6rem;
+  height: 100%;
+  padding-left: 0.3rem;
+  position: relative;
+}
+.main_title{
+  width: 100%;
+  height: 0.32rem;
+  font-size: 0.3rem;
+  line-height: 0.32rem;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color: #333;
+}
+.main_sku{
+  width: 100%;
+  height: 0.22rem;
+  line-height: 0.22rem;
+  font-size: 0.22rem;
+  color: #B3B3B3;
+  margin-top: 0.2rem;
+}
+.main_sku>span:first-child{
+  margin-right: 0.25rem;
+}
+.commodity_main>div:nth-child(3){
+  width: 100%;
+  height: 0.5rem;
+  margin-top: 0.9rem;
+  overflow: hidden;
+}
+.main_price{
+  width: 2.64rem;
+  float: left;
+  height: 100%;
+  line-height: 0.5rem;
+  overflow: hidden;
+}
+.main_price>span:first-child{
+  font-size: 0.3rem;
+  color: #F95B57;
+  float: left;
+}
+.main_price>span:first-child span{
+  font-size: 0.22rem;
+}
+.main_price>span:nth-child(2){
+  font-size: 0.22rem;
+  color: #B3B3B3;
+  float: left;
+  /*margin-left: 0.4rem;*/
+    position: absolute;
+    right: 40%;
+    display: none;
+}
+.main_sku>div{
+    padding-top:8px;
+}
+.main_num{
+  width: 1.66rem;
+  height: 100%;
+  position: relative;
+  float: right;
+}
+.main_num>div:first-child,.main_num>div:nth-child(3){
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  line-height: 0.5rem;
+  text-align: center;
+  border-radius: 50%;
+  top: 0;
+  z-index: 99;
+}
+.main_num>div:first-child i,.main_num>div:nth-child(3) i{
+  font-size: 0.5rem;
+  display: block;
+}
+.main_num>div:first-child{
+  left: 0;
+  color: #E6E6E6;
+}
+.main_num>div:nth-child(3){
+  right: 0;
+  color: #FF807D;
+}
+.main_num>div:nth-child(2){
+  width: 1.16rem;
+  height: 0.44rem;
+  position: relative;
+  margin: auto;
+  top: 0.03rem;
+  border-top: 0.01rem solid #E6E6E6;
+  border-bottom: 0.01rem solid #E6E6E6;
+  text-align: center;
+  font-size: 0.3rem;
+  color: #333333;
+  line-height: 0.42rem;
+}
+
+.search-input {
+  padding: 7px;
+  background: transparent;
+  color: #fff;
+  width: 90%;
+}
+
+.commodity_search span {
+  width: 100%;
+}
+
+.search-input::-webkit-input-placeholder {
+  color: #fff;
+}
+.input {
+  color:#333;
+  text-align: center;
+  height: 30px;
+  line-height: 30px;
+  font-size: 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+}
+.commodity_search {
+  position: relative;
+
+}
+
+.commodity_top_search > div:nth-child(2) i {
+  position: absolute;
+  right: 10px;
+  z-index: 999;
+}
+.category {
+  font-size: 12px;
+  position: absolute;
+  left: 54px;
+  top: 10px;
+}
+.category .text {
+  color: #fff;
+  background: #ffb6b5;
+  display: block;
+  height: 30px;
+  line-height: 30px;
+  max-width: 80px;
+  padding: 0 5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  border-radius: 3px;
+}
+.category i {
+  position: absolute;
+  right: -7px;
+  top: -6px;
+  background: #f14541;
+  color: #fff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  text-align: center;
+  font-style: normal;
+  line-height: 18px;
+}
+.commodity_top_search>div:nth-child(2) {
+  width: 4rem;
+  position: relative;
+  left: 50px;
+}
+.iconOpen{
+  position: absolute;
+  left: -20px;
+  top: 0px;
+}
+.iconDiv{
+  width: 1.66rem;
+  height: 100%;
+  position: relative;
+  /*float: right;*/
+  margin: auto;
+}
+.iconDiv>div{
+  position: absolute;
+}
+.iconDiv>div:nth-child(1){
+  left:0px;
+}
+.iconDiv>div:nth-child(3){
+  right:0px;
+}
+.iconSubtract{
+  font-size: 0.5rem !important;
+  display: block;
+  color: #E6E6E6;
+}
+.iconAdd{
+  font-size: 0.5rem !important;
+  display: block;
+  color: #FF807D;
+ }
+.addNum{
+  width: 1.16rem;
+  height: 0.44rem;
+  position: relative;
+  margin: auto;
+  /*top: 0.03rem;*/
+  border-top: 0.01rem solid #E6E6E6;
+  border-bottom: 0.01rem solid #E6E6E6;
+  text-align: center;
+  font-size: 0.3rem;
+  color: #333333;
+  line-height: 0.42rem;
+  left:13px;
+}

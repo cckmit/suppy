@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>用户列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <script type=text/javascript src="js/jquery.min.js"></script>
+</head>
+
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">用户列表</div>
+              <div class="layui-card-body">
+                <div class="layui-form">
+                    <div class="layui-form-item">
+                        <div class="layui-col-md4">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">账号</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="username" placeholder="请输入账号" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md4">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">昵称</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="nickname" placeholder="请输入昵称" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button class="layui-btn layuiadmin-btn-list" lay-submit="" lay-filter="search">
+                                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                    <table class="layui-hide" id="userTable" lay-filter="userTable"></table>
+                    <script type="text/html" id="userTool">
+                        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                    </script>
+               </div>
+            </div>
+       </div>
+    </div>
+</div>
+    <input hidden id="userId">
+    <script src="layui/layui/layui.js"></script>
+    <script>
+        layui.use(['table', 'form', 'layer'], function () {
+            var table = layui.table,
+                layer = layui.layer,
+                $ = layui.$,
+                form = layui.form;
+            //监听搜索
+            form.on('submit(search)', function (data) {
+                var field = data.field;
+
+                //执行重载
+                table.reload('userTable', {
+                    where: {
+                        "username": $("#username").val(),
+                        "nickname": $('#nickname').val()
+                    }
+                });
+            });
+
+            table.render({
+                elem: '#userTable',
+                cellMinWidth: 80,
+                response: {
+                    statusCode: 200 //规定成功的状态码，默认：0
+                },
+                curr: 1,//当前页
+                limit: 10,//每页的条数
+                limits: [10, 20, 30],
+                url: "/mgt/getIndentorUser",
+                cols: [
+                    [
+                        {field: 'uid', title: 'ID', hide: true},
+                        {field: 'username', title: '账号'},
+                        {field: 'name', title: '昵称'},
+                        {field: 'description', title: '角色'},
+                        {field: 'org_name', title: '单位'},
+                        {width: 200, align: 'center', title: '操作',toolbar: '#userTool'}
+                    ]
+                ],
+                id: 'userTable',
+                page: true
+
+            });
+
+            table.on('tool(userTable)', function (obj) {
+                if (obj.event === 'edit') {
+                    var uId = obj.data.uid;
+                    layer.open({
+                        type: 2,
+                        title: "单位列表",
+                        shadeClose: true,
+                        shade: 0.8,
+                        area: ['50%', '60%'],
+                        content: "/mgt/checkOrgs?uId=" + uId
+                    });
+                }
+            });
+        });
+
+        $('body').on('click', '.userTable tr', function () {
+            var id = $(this).find(".laytable-cell-1-0-0").html()
+            console.log(id)
+            $("#userId").val(id);
+
+            $("tr .layui-form-checkbox").each(function () {
+                $(this).removeClass("layui-form-checked");
+            })
+
+            $.post("/mgt/getUserCheckOrg", {"uId": id}, function (data) {
+                $(data).each(function (index, item) {
+                    $("td[data-field='id']").each(function (index, item2) {
+                        var id2 = $(item2).children(".layui-table-cell").html();
+                        if (item != id2) {
+                            return;
+                        }
+                        var dataIndex = $(this).parent().attr("data-index");
+                        var td = $(".org .layui-table-fixed tr[data-index='" + dataIndex + "']").children().find(".layui-unselect").addClass("layui-form-checked");
+                    })
+                })
+            })
+        })
+    </script>
+</div>
+</body>
+</html>

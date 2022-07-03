@@ -1,0 +1,10 @@
+supply:
+  wechat:
+    bind-button: false
+#    下面是永康农商行配置
+#    bind-button: true
+  overpayment:
+    enable: true
+    order-check: true
+    order-confirm: true
+

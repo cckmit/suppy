@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>充值记录查询</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <link rel="stylesheet" href="css/global.css" media="all">
+    <script src="js/jquery.min.js"></script>
+    <style>
+        .layui-form-label {
+            float: left;
+            display: block;
+            font-weight: 400;
+            line-height: 20px;
+            text-align: right;
+            padding: 0;
+            min-width: 100px;
+            height: 38px;
+            text-align: left;
+            line-height: 38px;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <form class="layui-form" action="" th:if="${currentOrg.type == 3}">
+                        <div class="layui-form-item">
+                            <div class="layui-row padding_redit">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">单位名称</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" name="orgName" id="orgName"
+                                               class="layui-input">
+                                    </div>
+                                </div>
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">单位</label>
+                                    <div class="layui-input-inline">
+                                        <select id="org" name="org">
+                                            <option value="-99">全部</option>
+                                            <option th:each="org:${orgs}" th:value="${org.id}"
+                                                    th:text="${org.orgName}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="organizeSarch" class="layui-btn" data-type="reload">搜索</div>
+                            </div>
+                        </div>
+                    </form>
+                    <table class="layui-hide" id="test-table-page" lay-filter="test-table-page"></table>
+                    <!--<script type="text/html" id="table-toolbar">
+                        <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="detail">详情</a>
+                    </script>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="layui/layui/layui.js"></script>
+<script>
+    layui.use(['form', 'table'], function () {
+        var form = layui.form,
+            util = layui.util,
+            table = layui.table;
+        table.render({
+            elem: '#test-table-page'
+            , cellMinWidth: 80
+            , url: "/mgt/queryRechargeRecordData"
+            , response: {
+                statusCode: 200 //规定成功的状态码，默认：0
+            }
+            , curr: 1//当前页
+            , limit: 10//每页的条数
+            , cols: [
+                [
+                    {field: 'orgName', title: '单位', sort: true}
+                    , {field: 'userName', title: '操作用户'}
+                    , {
+                    field: 'occurdate', title: '修改时间',
+                    templet: function (d) {
+                        return util.toDateString(d.occurdate);
+                    }
+                }
+                    , {field: 'lastQuota', title: '上次额度'}
+                    , {field: 'money', title: '变动金额'}
+                    , {field: 'balance', title: '当前额度'}
+                    , {field: 'remark', title: '备注'}
+                    // , {width: 200, align: 'center', title: '操作', fixed: 'right', toolbar: '#table-toolbar'}
+                ]
+            ]
+            , id: "test-table-page"
+            , page: true
+        });
+        //用户管理监听工具条
+        table.on('tool(test-table-page)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'detail') {
+                var index = layer.open({
+                    type: 2,
+                    title: '修改用户',
+                    shadeClose: true,
+                    shade: 0.8,
+                    area: ['480px', '70%'],
+                    content: '/mgt/user/userModifyPage?uid=' + data.uid//iframe的url
+                });
+            }
+        });
+
+        var active = {
+            reload: function () {
+                //执行重载
+                table.reload('test-table-page', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                        , limit: 10
+                    }
+                    , where: {
+                        "orgName": $("#orgName").val(),
+                        "org": $("#org option:selected").val()
+                    }
+                });
+            }
+        };
+        $('#organizeSarch').click(function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        $('.layui-btn-add').click(function () {
+            var index = layer.open({
+                type: 2,
+                title: '添加用户',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['480px', '70%'],
+                content: '/mgt/user/userAddPage'
+            });
+
+        })
+    });
+</script>
+</body>
+</html>

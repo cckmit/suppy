@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户新增</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <script src="js/jquery.min.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">新增用户</div>
+                <div class="layui-card-body">
+                    <div class="layui-form" wid100>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">账号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="username" name="username"
+                                       placeholder="请输入手机号码/账户"
+                                       class="layui-input" autocomplete="off">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">如：1001</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">昵称</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="name" name="name"
+                                       placeholder="请输入用户昵称"
+                                       class="layui-input" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">密码</label>
+                            <div class="layui-input-inline">
+                                <input type="password" id="password" name="password"
+                                       placeholder="请输入密码"
+                                       class="layui-input" autocomplete="off">
+                            </div>
+                        </div>
+                    <!--    <div class="layui-form-item">
+                            <label class="layui-form-label">行号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="bankNum" name="bankNum"
+                                       placeholder="请输入行号"
+                                       class="layui-input" autocomplete="off">
+                            </div>
+                        </div>-->
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">所属单位</label>
+                            <div class="layui-input-inline">
+                                <select id="org" name="org" lay-filter="org">
+                                    <option th:each="org:${orgs}" th:value="${org.id}"
+                                            th:text="${org.orgName}" th:type="${org.type}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item" id="role">
+                            <label class="layui-form-label">角色</label>
+                            <div class="layui-input-inline">
+                                <select id="roleId" name="roleId">
+                                    <option th:each="role:${roles}" th:value="${role.id}"
+                                            th:text="${role.description}" th:if="${orgType} eq '3'">
+                                    </option>
+
+                                    <option th:each="role:${roles}" th:value="${role.id}"
+                                            th:text="${role.description}"
+                                            th:if="${orgType} eq '2' and (${role.id} eq '6' or ${role.id} eq '7')">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">备注</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="remark" name="remark" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item" onclick="userAdd()">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-filter="set_system_email">确认保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="layui/layui/layui.js"></script>
+<script th:inline="javascript">
+    $(function () {
+        var orgs = [[${orgs}]];
+        if(orgs[0].type == '2' || orgs[0].type == '3'){
+            $("#role").show();
+        }else{
+            $("#role").hide();
+        }
+    })
+
+    layui.config({
+        base: 'layui/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'set']);
+
+    function userAdd() {
+        var name = $("#name").val();
+        var orgid = $("#org").val();
+        var roleId = $("#roleId").val();
+        var remark = $("#remark").val();
+        var password = $("#password").val();
+        var username = $("#username").val();
+      /*  var bankNum = $("#bankNum").val();*/
+        if (username == "") {
+            // alert("账号为空")
+            luiAlert("提示", "账号为空")
+            return
+        }
+      /*  if (bankNum == "") {
+            // alert("账号为空")
+            luiAlert("提示", "行号为空")
+            return
+        }*/
+        if (name == "") {
+            // alert("昵称为空")
+            luiAlert("提示", "昵称为空")
+            return
+        }
+        if (password == "") {
+            // alert("密码为空")
+            luiAlert("提示", "密码为空")
+            return
+        }
+        if (orgid == "") {
+            // alert("所属单位为空")
+            luiAlert("提示", "所属单位为空")
+            return
+        }
+        $.get("/mgt/user/userAdd", {
+            "name": name,
+            "orgid": orgid,
+            "roleId": roleId,
+            "remark": remark,
+            "password": password,
+            "username": username
+           /* "column1":bankNum*/
+        }, function (data) {
+            var status = data.status;
+            var msg = data.msg;
+            if (status == 200) {
+                layer.open({
+                    title: '提示'
+                    , content: '新增成功'
+                    , yes: function (index, layero) {
+                        var index = parent.layer.getFrameIndex(window.name)
+                        parent.layer.close(index);
+                        parent.window.location.reload();
+                    }
+                })
+            } else {
+                luiAlert("提示", msg)
+            }
+        })
+    }
+
+    layui.use(['form'], function () {
+        form = layui.form;
+        form.on('select(org)', function (data) {
+            var type = $("#org option:selected").attr("type");
+            if (type == '3') {
+                $("#role").show()
+            } else if (type == '2') {
+                //行社
+                $("#role").show()
+
+            } else {
+                $("#role").hide();
+            }
+        });
+    });
+</script>
+</body>
+</html>

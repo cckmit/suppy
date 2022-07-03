@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>单位列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <script type=text/javascript src="js/jquery.min.js"></script>
+</head>
+
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12 org">
+            <div class="layui-card jurisdiction">
+                <div class="layui-card-header">单位列表</div>
+                <div class="layui-card-body unitTable">
+                    <table class="layui-hide" id="unitTable" lay-filter="unitTable"></table>
+                    <!--<script type="text/html" id="unitTool">-->
+                    <!--<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>-->
+                    <!--</script>-->
+                </div>
+                <div class="layui-card-body">
+                    <button class="layui-btn layui-btn-fluid layui-btn-normal" onclick="check()">确定修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input hidden id="userId">
+    <script src="layui/layui/layui.js"></script>
+    <script th:inline="javascript">
+        var uId = [[${uId}]];
+    </script>
+    <script>
+        layui.use(['table', 'form', 'layer', 'tree'], function () {
+            var table = layui.table,
+                layer = layui.layer,
+                $ = layui.$,
+                form = layui.form;
+
+            table.render({
+                elem: '#unitTable',
+                cellMinWidth: 80,
+                response: {
+                    statusCode: 200 //规定成功的状态码，默认：0
+                },
+                url: "/mgt/getPurchaserOrganizeAll",
+                cols: [
+                    [
+                        {type: 'checkbox', fixed: 'left'},
+                        {field: 'id', title: 'ID'/*, hide: true*/},
+                        {field: 'branchno', title: '单位编号'},
+                        {field: 'orgName', title: '单位名称'},
+                        {field: 'address', title: '地址'},
+                        {field: 'contact', title: '联系人'},
+                        {field: 'telephone', title: '电话'}
+                        // {width: 200, align: 'center', title: '操作', fixed: 'right', toolbar: '#userTool'}
+                    ]
+                ],
+                id: 'unitTable',
+                page: false
+            });
+
+            table.on('toolbar(unitTable)', function (obj) {
+                var checkStatus = table.checkStatus(obj.config.id); //获取选中行状态
+                switch (obj.event) {
+                    case 'getCheckData':
+                        var data = checkStatus.data;  //获取选中行数据
+                        layer.alert(JSON.stringify(data));
+                        break;
+                }
+            });
+        })
+
+        setTimeout(function () {
+            checkBox();
+        }, 500)
+
+        function checkBox() {
+            $.post("/mgt/getUserCheckOrg", {"uId": uId}, function (data) {
+                $(data).each(function (index, item) {
+                    $("td[data-field='id']").each(function (index, item2) {
+                        var id2 = $(item2).children(".laytable-cell-1-0-1").html();
+                        if (item != id2) {
+                            return;
+                        }
+                        var dataIndex = $(this).parent().attr("data-index");
+                        console.log($(".org .layui-table-fixed tr[data-index='" + dataIndex + "']").children().find(".layui-unselect").attr("class"))
+                        $(".org .layui-table-fixed tr[data-index='" + dataIndex + "']").children().find(".layui-unselect").addClass("layui-form-checked");
+                    })
+                })
+            })
+        }
+
+        function check() {
+            var ids = "";
+            var index = 0;
+            $(".layui-form-checked").each(function () {
+                var dataIndex = $(this).parent().parent().parent().attr("data-index");
+                if (dataIndex == undefined) {
+                    return;
+                }
+                var tr = $(".org .layui-table-main tr[data-index=" + dataIndex + "]");
+                var id = tr.children("td[data-field='id']").children("div").html();
+                if (index == 0) {
+                    ids += id;
+                } else {
+                    ids += ("," + id);
+                }
+                index++;
+            })
+            // if(ids == ""){
+            //     layer.msg('未选中单位！', {icon: 5});
+            //     return;
+            // }
+            $.post("/mgt/updateUserCheckOrg", {"id": uId, "orgIdStr": ids}, function (data) {
+                var status = data.status;
+                var msg = data.msg;
+                if (status == 200) {
+                    layer.open({
+                        title: '提示'
+                        , content: '修改成功！'
+                        , yes: function (index, layero) {
+                            var index = parent.layer.getFrameIndex(window.name)
+                            parent.layer.close(index);
+                            parent.window.location.reload();
+                        }
+                    })
+                } else {
+                    layer.msg(msg, {icon: 2})
+                }
+            })
+        }
+    </script>
+</div>
+</body>
+
+</html>

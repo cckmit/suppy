@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>确认发票</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <script type=text/javascript src="js/jquery.min.js"></script>
+</head>
+<body>
+<div class="layui-fluid"  >
+  <div class="layui-row layui-col-space15">
+     <div class="layui-card">
+
+       <div class="layui-form-item">
+         <label class="layui-form-label">发票抬头：</label>
+         <div class="layui-input-block">
+           <input type="text" name="name" lay-verify="title" autocomplete="off" th:value="${name}" class="layui-input" readonly>
+         </div>
+       </div>
+
+       <div class="layui-form-item">
+         <label class="layui-form-label">发票金额：</label>
+         <div class="layui-input-block">
+           <input type="text" name="name" lay-verify="title" autocomplete="off" th:value="${total}" class="layui-input" readonly>
+         </div>
+       </div>
+
+       <div class="layui-form-item">
+         <label class="layui-form-label">发票类型：</label>
+         <div class="layui-input-block">
+           <input type="text" name="name" lay-verify="title" autocomplete="off" th:value="${type}" class="layui-input" readonly>
+         </div>
+       </div>
+
+     </div>
+  </div>
+</div>
+
+
+
+</body>
+</html>

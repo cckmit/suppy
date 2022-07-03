@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>审核商品</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <script type=text/javascript src="js/jquery.min.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card jurisdiction">
+                <div class="layui-card-header">商品出库/入库/库存报表</div>
+                <div class="layui-card-body">
+                    <div class="layui-form">
+                        <div id="organizeSarch" class="layui-btn"
+                             data-type="reload" onclick="fexport()">导出excel数据
+                        </div>
+                        <input id="orgid" style="display: none;" th:value="${orgid}"></input>
+                        <input id="startdate" style="display: none;" th:value="${#dates.format(startdate, 'yyyy-MM-dd')}"></input>
+                        <input id="enddate" style="display: none;" th:value="${#dates.format(enddate, 'yyyy-MM-dd')}"></input>
+                        <table class="layui-table" id="NocheckTable" lay-filter="NocheckTable">
+                            <thead>
+                                <th>网点</th>
+                                <th>商品名称</th>
+                                <th>商品单价</th>
+                                <th>入库量</th>
+                                <th>出库量</th>
+                                <th>库存</th>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item:${list}">
+                                    <td th:text="${item.org_name}"></td>
+                                    <td th:text="${item.name}"></td>
+                                    <td th:text="${item.price}"></td>
+                                    <td th:text="${item.purchase_quantity}"></td>
+                                    <td th:text="${item.out_quantity}"></td>
+                                    <td th:text="${item.quantity}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="layui/layui/layui.js"></script>
+<script>
+    function fexport() {
+        var orgid = parseInt($('#orgid').val());
+        var startdate = $('#startdate').val();
+        var enddate = $('#enddate').val();
+        window.location.href = "/mgt/purchaseProductExport?orgid="+orgid+"&startdate="+startdate+"&enddate="+enddate;
+    }
+</script>
+</body>
+</html>

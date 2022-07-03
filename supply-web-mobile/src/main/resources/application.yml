@@ -1,0 +1,93 @@
+logging:
+  level:
+    org.springframework.web: INFO
+    com.zjjzfy.*: DEBUG
+  path: MobileLog
+
+server:
+  port: 8077
+  tomcat:
+    uri-encoding: UTF-8
+    max-http-post-size: 102400000
+
+spring:
+  #  peImgPath: 对应supply-web-manager的application的port
+  peImgPath: http://localhost:8099
+  profiles:
+    active: core
+  jackson:
+    time-zone: GMT+8
+  http:
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+  freemarker:
+    allow-request-override: false
+    cache: false
+    check-template-location: true
+    charset: UTF-8
+    content-type: text/html; charset=utf-8
+    expose-request-attributes: false
+    expose-session-attributes: false
+    expose-spring-macro-helpers: false
+    suffix: .ftl
+    template-loader-path: classpath:/templates
+    settings:
+      number_format: 0.##
+  messages:
+    encoding: utf-8
+  datasource:
+#    供货
+    url: jdbc:mysql://192.168.30.23:3306/supply?characterEncoding=UTF-8&allowMultiQueries=true
+#    永康
+#    url: jdbc:mysql://192.168.30.23:3306/yrcbank_supply?characterEncoding=UTF-8&allowMultiQueries=true
+    username: root
+    password: password01!
+    driver-class-name: com.mysql.jdbc.Driver
+
+#  测试地址
+  rabbitmq:
+      host: 192.168.30.62
+      port: 5672
+      username: auditplus
+      password: auditpluspassword01!
+  mvc:
+    static-path-pattern: /**
+  servlet:
+    multipart:
+      file-size-threshold: 10MB
+      max-file-size: 10MB
+
+
+mybatis:
+  type-aliases-package: com.zjjzfy.store.pojo
+  mapperLocations: classpath*:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+mapper:
+  mappers: com.zjjzfy.pub.PublicMapper
+  not-empty: false
+  identity: mysql
+
+
+
+jedis:
+  pool:
+    host: 192.168.30.23
+    port: 6379
+    timeout: 1000000
+    password: 123456
+    config:
+      maxTotal: 100
+      maxIdle: 10
+      maxWaitMillis: 100000
+
+cancel:
+#作废单位 小时
+  timeout: 2
+  #广告图地址
+ads:
+  url: http://localhost:8099
+

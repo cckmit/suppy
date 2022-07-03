@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>网点商品库存</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <link rel="stylesheet" href="css/global.css" media="all">
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                    <div class="layui-card-header layui-form  layui-card-header layuiadmin-card-header-auto" >
+                        <div class="layui-form-item" style="margin-top: 5px;height: 30px" >
+                            <div class="layui-form layui-col-md6">
+
+                                <div class="layui-input-inline"   >
+                                    <select name="switchOrg" id="switchOrg"  lay-filter="switchOrg">
+                                        <option value="" >请选择机构</option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div class="layui-card-body">
+                        <table class="layui-table" id="NocheckTable" lay-filter="NocheckTable">
+                        </table>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="layui/layui/layui.js"></script>
+
+<script>
+
+    var orgId = null;
+    layui.use(['table', 'laydate', 'form', 'layer','util'], function () {
+        var table = layui.table,
+            layer = layui.layer,
+            $ = layui.$,
+            util = layui.util,
+            form = layui.form;
+
+
+
+        form.on('select(switchOrg)', function (data) {
+            orgId = data.elem[data.elem.selectedIndex].value;
+            getExchageOrderCount(orgId);
+        });
+
+
+
+
+
+        getExchageOrderCount(orgId);
+        function getExchageOrderCount(orgId) {
+            table.render({
+                elem: '#NocheckTable',
+                url: "/mgt/selectNetWorkRepertory",
+                where:{
+                    "orgId":orgId
+                },
+                cellMinWidth: 80,
+                request: {
+                    pageName: 'pageNo', //页码的参数名称，默认：page
+                    limitName: 'pageSize' //每页数据量的参数名，默认：limit
+                },
+                toolbar: '#toolbarDemo',
+                parseData: function (res) {
+                    return {
+                        "code": 0,
+                        "msg": "",
+                        "count": res.data.total,
+                        data: res.data.list
+                    }
+                },
+                cols: [
+                    [
+                        {field: 'name', title: '商品名称'},
+                        {field: 'exchangenum', title: '兑换数量'},
+                        {field: 'num', title: '剩余数量'},
+                        {field: 'orgname', title: '网点'},
+                    ]
+                ],
+                page: true
+
+            });
+        }
+
+        queryOrgInfo()
+        function queryOrgInfo() {
+            $.ajax({
+                type: "GET",
+                url: "/mgt/selectOrgInfo",
+                success: function (data) {
+                    for (var i = 0; i < data.data.length; i++) {
+                        $("#switchOrg").append('<option value="' + data.data[i].id + '">' + data.data[i].org_name + '</option>');
+                        form.render('select');
+                    }
+                }
+            });
+        }
+
+
+    });
+
+</script>
+</body>
+</html>

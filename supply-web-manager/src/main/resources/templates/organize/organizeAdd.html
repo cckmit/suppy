@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>单位新增</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <script src="js/jquery.min.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">新增单位</div>
+                <div class="layui-card-body">
+                    <div class="layui-form" wid100>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">单位编号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="branchno" name="branchno" lay-verify="number"
+                                       placeholder="请输入单位编号"
+                                       class="layui-input">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">如：962000</div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">单位名称</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="orgName" name="orgName"
+                                       placeholder="请输入单位名称"
+                                       class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item" id="orgnizeType">
+                            <label class="layui-form-label">单位类型</label>
+                            <div class="layui-input-inline">
+                                <select id="type" name="type" lay-filter="type">
+                                    <option value="1" selected>供货方</option>
+                                    <option value="2">订货方</option>
+                                    <option value="3">平台</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item " id="switchBankNo" >
+                            <label class="layui-form-label">行号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="bankNo" name="bankNo"
+                                       placeholder="请输入行号"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item" id="parent">
+                            <label class="layui-form-label">上级网点</label>
+                            <div class="layui-input-inline">
+                                <select id="branchParent" name="branchParent">
+                                    <option th:each="org:${orgs}" th:value="${org.branchno}"
+                                            th:if="${userRole != '6'}" th:text="${org.orgName}"></option>
+                                    <option th:value="${org.branchno}"
+                                            th:if="${userRole == '6'}" th:text="${org.orgName}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">地址</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="address" name="address"
+                                       placeholder="请输入单位地址"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">联系人</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="contact" name="contact"
+                                       placeholder="请输入单位联系人"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">电话</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="telephone" name="telephone"
+                                       placeholder="请输入联系人电话"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item" th:if="${org.type == 2}">
+                            <label class="layui-form-label">额度</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="balance" name="balance" value="0"
+                                       placeholder="请输入订货额度"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item" onclick="organizeAdd()">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-filter="set_system_email">确认保存</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="layui/layui/layui.js"></script>
+<script>
+    var userRole = "[[${userRole}]]";
+    $(function () {
+
+        if (userRole == "6") {
+            //行社财务
+            $("#type").val("2");
+            $("#type").attr("disabled", "disabled");
+            $("#branchParent").attr("disabled", "disabled");
+        } else {
+            $("#parent").hide();
+            $("#balance").hide();
+            $("#switchBankNo").hide();
+        }
+    })
+    layui.config({
+        base: 'layui/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'set']);
+
+    var form;
+    var value = "";
+    layui.use(['form'], function () {
+        form = layui.form;
+        form.on('select(type)', function (data) {
+            value = data.value;
+            if (value == 2) {
+                $("#parent").show();
+                $("#balance").show();
+                $("#switchBankNo").show();
+                var bankNo = $("#bankNo").val();
+            } else {
+                $("#parent").hide();
+                $("#balance").hide();
+                $("#switchBankNo").hide();
+            }
+        });
+    });
+
+    function organizeAdd() {
+        var contact = $("#contact").val();
+        var orgName = $("#orgName").val();
+        var address = $("#address").val();
+        var balance = $("#balance").val();
+        var branchno = $("#branchno").val();
+        var telephone = $("#telephone").val();
+        var branchParent = $("#branchParent").val();
+        var type = $('#type option:selected').val();
+        var bankNo = $("#bankNo").val();
+        if (branchno == "") {
+            luiAlert("提示", "单位编号为空")
+            return
+        }
+        if (orgName == "") {
+            luiAlert("提示", "单位名称为空")
+            return
+        }
+        if (contact == "") {
+            luiAlert("提示", "联系人为空")
+            return
+        }
+        if (address == "") {
+            luiAlert("提示", "地址为空")
+            return
+        }
+        if (telephone == "") {
+            luiAlert("提示", "联系电话为空")
+            return
+        }
+        $.get("/mgt/organizeAdd", {
+            "type": type,
+            "contact": contact,
+            "orgName": orgName,
+            "address": address,
+            "balance": balance,
+            "branchno": branchno,
+            "telephone": telephone,
+            "parentBranchno": branchParent,
+            "bankNo": bankNo
+        }, function (data) {
+            var status = data.status;
+            var msg = data.msg;
+            if (status == 200) {
+                layer.open({
+                    title: '提示'
+                    , content: '新增成功'
+                    , yes: function (index, layero) {
+                        var index = parent.layer.getFrameIndex(window.name)
+                        parent.layer.close(index);
+                        parent.window.location.reload();
+                    }
+                })
+            } else {
+                luiAlert("提示", msg)
+            }
+        })
+    }
+</script>
+</body>
+</html>

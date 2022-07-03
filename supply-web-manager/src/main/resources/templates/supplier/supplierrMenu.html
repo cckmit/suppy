@@ -1,0 +1,20 @@
+<div class="layui-side-scroll">
+    <div class="layui-logo" lay-href="home/console.html">
+        <span th:text="${tbUserInfo.name}"></span>
+    </div>
+
+    <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="LAY-system-side-menu"
+        lay-filter="layadmin-system-side-menu">
+        <li data-name="home" class="layui-nav-item">
+            <a href="javascript:;" lay-tips="供货方订单" lay-direction="4">
+                <i class="layui-icon layui-icon-component"></i>
+                <cite>订单管理</cite>
+            </a>
+            <dl class="layui-nav-child">
+                <dd data-name="console">
+                    <a <!--lay-href="#"-->>订单查询</a>
+                </dd>
+            </dl>
+        </li>
+    </ul>
+</div>

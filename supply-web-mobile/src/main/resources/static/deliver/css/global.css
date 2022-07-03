@@ -1,0 +1,154 @@
+*{
+  margin: 0;
+  padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+html,
+body {
+	width: 100%;
+	min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  background: #F0F0F0;
+  -webkit-text-size-adjust: 100%;
+}
+div{
+  box-sizing: border-box;
+}
+a{
+  text-decoration: none;
+}
+input,button{
+  outline: none;
+  border: 0;
+}
+input::-webkit-input-placeholder {
+ color: #ccc;
+}
+.swiper-pagination-bullet-active{
+  background: #FF807D !important;
+}
+.swiper-pagination-bullet{
+  opacity: 0.6 !important;
+}
+.swiper-container-horizontal>.swiper-pagination-bullets, .swiper-pagination-custom, .swiper-pagination-fraction{
+  bottom: 0 !important;
+}
+/* 底部导航栏 */
+.bottom_bar{
+  width: 100%;
+  height: 0.98rem;
+  background: #fff;
+  position: fixed;
+  bottom: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: space-between;
+  border-top: 0.01rem solid #E1E1E1;
+}
+.bottom_bar>div{
+  width: 25%;
+  height: 100%;
+  text-align: center;
+  /* padding-top: 0.06rem; */
+}
+.bottom_bar>div i{
+  display: block;
+  font-size: 0.52rem;
+  color: #666666;
+  height: 0.52rem;
+}
+.bottom_bar_active i, .bottom_bar_active p{
+  color: #0BC6D7 !important;
+}
+.bottom_bar>div p{
+  font-size: 0.22rem;
+  color: #666666;
+}
+/* 弹窗 */
+.lower_mask{
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  background: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+  z-index: 999;
+  display: none;
+}
+.lower_popup{
+  width: 5.9rem;
+  height: 2.88rem;
+  background: #fff;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  border-radius: 0.08rem;
+  overflow: hidden;
+}
+.lower_popup>div:first-child{
+  width: 100%;
+  height: 2rem;
+  line-height: 2rem;
+  font-size: 0.3rem;
+  color: #666666;
+  text-align: center;
+}
+.lower_btn{
+  width: 100%;
+  height: 0.88rem;
+  border-top: 0.01rem solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+}
+.lower_btn>div{
+  width: 50%;
+  height: 100%;
+  line-height: 0.87rem;
+  text-align: center;
+  font-size: 0.34rem;
+  color: #666;
+  background: #fff;
+}
+.lower_btn>div:nth-child(2){
+  background: #0BC6D7;
+  color: #fff;
+}
+/* 清除浮动 */
+.f:after {
+  content: "";
+  display: block;
+  height: 0;
+  line-height: 0;
+  visibility: hidden;
+  clear: both;
+}
+.f {
+  zoom: 1;
+}
+
+li {
+  list-style: none;
+}
+.nodata{text-align: center;font-size:.3rem;color:#333;}
+/*750比例*/
+@media screen and (min-width: 320px) {html{font-size:42.6667px;}}
+@media screen and (min-width: 360px) {html{font-size:48px;}}
+@media screen and (min-width: 375px) {html{font-size:50px;}}
+@media screen and (min-width: 400px) {html{font-size:53.3333px;}}
+@media screen and (min-width: 414px) {html{font-size:55.2px;}}
+@media screen and (min-width: 440px) {html{font-size:58.6667px;}}
+@media screen and (min-width: 480px) {html{font-size:64px;}}
+@media screen and (min-width: 520px) {html{font-size:69.3333px;}}
+@media screen and (min-width: 560px) {html{font-size:74.6667px;}}
+@media screen and (min-width: 600px) {html{font-size:80px;}}
+@media screen and (min-width: 640px) {html{font-size:85.3333px;}}
+@media screen and (min-width: 680px) {html{font-size:90.6667px;}}
+@media screen and (min-width: 720px) {html{font-size:96px;}}
+@media screen and (min-width: 760px) {html{font-size:101.3333px;}}
+@media screen and (min-width: 800px) {html{font-size:106.6667px;}}
+@media screen and (min-width: 960px) {html{font-size:128px;}}

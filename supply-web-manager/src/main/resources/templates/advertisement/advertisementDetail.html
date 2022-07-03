@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>广告管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <script type=text/javascript src="js/jquery.min.js"></script>
+    <style>
+        .layui-card-header {
+            justify-content: space-between;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">广告管理
+                    <button class="layui-btn layui-btn-normal layui-btn-sm" id="Advertisingadd">新增广告</button>
+                </div>
+                <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <div class="layui-input-inline">
+                                <select name="label" lay-filter="test"  id="type">
+
+                                    <option value="1" selected>展示中</option>
+                                    <option value="2">未开始</option>
+                                    <option value="3">已结束</option>
+                                    <option value="4">已下架</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                      <!--  <div class="layui-inline">
+                            <button class="layui-btn layui-btn-normal layuiadmin-btn-list" lay-submit
+                                    lay-filter="LAY-app-contlist-search" id="search">
+                                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                            </button>
+                        </div>-->
+
+
+                    </div>
+                </div>
+
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="Statistics" lay-filter="Statisticsbar"></table>
+                    <script type="text/html" id="barDemo">
+                        {{#  if(d.status==1){ }}
+                        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="down">下架</a>
+                        <a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>
+                        {{#  } else { }}
+                        <!-- <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="up">上架</a>-->
+                        <!--<a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>-->
+                        {{#  } }}
+
+
+                    </script>
+                </div>
+
+                <script type="text/html" id="startTime">
+                    {{#
+                    return GetDateStr(d.startTime)
+                    }}
+                </script>
+                <script type="text/html" id="endTime">
+                    {{#
+                    return GetDateStr(d.endTime)
+                    }}
+                </script>
+                <script th:inline="javascript">
+                    var imgAddr = [[${imgAddr}]];
+                </script>
+                <script type="text/html" id="tfImg">
+                    {{#
+                    return tfImg(d.img)
+                    }}
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="layui/layui/layui.js"></script>
+<script type="text/javascript">
+    function GetDateStr(date) {
+        var dd = new Date(date);
+        var y = dd.getFullYear();
+        var m = (dd.getMonth() + 1) < 10 ? "0" + (dd.getMonth() + 1) : (dd.getMonth() + 1);//获取当前月份的日期，不足10补0
+        var d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate();//获取当前几号，不足10补0
+
+        return y + '-' + m + '-' + d;
+    };
+    function tfImg(data){
+        if(data==null&&data==''){
+            return '未知'
+        }else{
+            return '<div><img src="'+imgAddr+data+'"></div>'
+        }
+    }
+    layui.use(['form',  'table'], function () {
+        var $ = layui.jquery
+            , table = layui.table
+            , form = layui.form
+            , util = layui.util;
+
+        table.render({
+            elem: '#Statistics'
+            , url: '/mgt/advertisingDetail'
+            , method: 'POST'   //laui 修改请求方式
+            , where: {type:1,status:'1'},
+            request: {
+                pageName: 'pageNo', //页码的参数名称，默认：page
+                limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            },
+            parseData: function (res) {
+                console.log(res)
+                return {
+                    "code": 0,
+                    "msg": "",
+                    "count": res.length,
+                    data: res
+                }
+            }
+            , cols: [
+                [
+                {field: 'name', title: '广告名称', sort: true}
+                ,{field: 'img', title: '图片预览', width: 250, templet: '#tfImg'}
+                , {field: 'rank', title: '排序'}
+                , {field: 'startTime', title: '开始时间', templet: function (d) {
+                        return util.toDateString(d.startTime);
+                    }}
+                , {field: 'endTime', title: '结束时间', templet: function (d) {
+                        return util.toDateString(d.endTime);
+                    }}
+                , {title: '操作', toolbar: '#barDemo', align: 'center'}
+            ]
+            ]
+            , page: true
+            /*, toolbar: true
+            , defaultToolbar: ['filter', 'exports']*/
+        });
+        table.on('tool(Statisticsbar)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'down') {
+                layer.open({
+                    title: '提示'
+                    , content: '是否确认下架此广告？'
+                    , btn: ['是', '否']
+                    , yes: function (index, layero) {
+                        $.ajax({
+                            type: "POST",
+                            dataType: "json",
+                            url: "/mgt/downAds",
+                            data: {
+                                "adId": data.id
+                            },
+                            success: function (result) {
+                                if (result.status == 200) {
+                                    layer.alert('下架成功！');
+                                    layui.table.reload('Statistics');
+                                } else {
+                                    layer.alert(result.msg);
+                                }
+
+                            }
+                        });}
+                    , btn2: function (index, layero) {
+                        //按钮【否】的回调
+                        //return false 开启该代码可禁止点击该按钮关闭
+                    }
+                });
+
+            }if (obj.event === 'edit') {
+                layer.open({
+                    type: 2
+                    , title: '广告修改'
+                    , content: '/mgt/modifyAd?adId='+data.id
+                    , area: ['680px', '550px']
+                    , btn: ['确定', '取消']
+                    //,data:{activity:activity,}
+                    , yes: function (index, layero) {
+                        //点击确认触发 iframe 内容中的按钮提交
+                        var submit = layero.find('iframe').contents().find("#form-submit");
+                        submit.click();
+                    }
+
+                });
+            }
+
+        })
+
+
+        $(document).on('click', '#Advertisingadd', function () {
+            layer.open({
+                type: 2
+                , title: '新增广告'
+                , content: '/mgt/advertisingAddPage'
+                , area: ['680px', '550px']
+                , btn: ['确定', '取消']
+                , yes: function (index, layero) {
+                    //点击确认触发 iframe 内容中的按钮提交
+                    var submit = layero.find('iframe').contents().find("#form-submit");
+                    submit.click();
+                }
+            });
+        });
+
+
+        form.on('select(test)', function (data) {
+
+            var key = data.value
+            if (key == 4) {
+                table.reload('Statistics', {
+                    method: 'post'
+                    , url: '/mgt/advertisingDetail'
+                    , where: {
+                        'type': "",
+                        'status':'0'
+                    }
+                    , page: {
+                        curr: 1
+                    }
+                });
+            } else {
+                table.reload('Statistics', {
+                    method: 'post'
+                    , url: '/mgt/advertisingDetail'
+                    , where: {
+                        'type': key,
+                        'status':'1'
+                    }
+                    , page: {
+                        curr: 1
+                    }
+                });
+            }
+        });
+
+
+
+    })
+</script>
+</body>
+</html>

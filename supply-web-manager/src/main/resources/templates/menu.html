@@ -1,0 +1,310 @@
+<div class="layui-side-scroll" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="layui-logo" lay-href="home/console.html">
+        <span th:text="${tbUserInfo.name}"></span>
+    </div>
+
+    <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="LAY-system-side-menu"
+        lay-filter="layadmin-system-side-menu">
+        <shiro:hasPermission name="organizeManager">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="单位管理" lay-direction="4">
+                    <i class="layui-icon layui-icon-component"></i>
+                    <cite>单位管理</cite>
+                </a>
+                <dl class="layui-nav-child ">
+                    <shiro:hasPermission name="organizeQuery">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/organizeManager">单位查询</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+                <!--<dl class="layui-nav-child ">
+                    <shiro:hasPermission name="networkUserManager">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/toNetworkUserManager">员工信息管理</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>-->
+            </li>
+            　　
+        </shiro:hasPermission>
+        <shiro:hasPermission name="userManager">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="用户管理" lay-direction="4">
+                    <i class="layui-icon layui-icon-user"></i>
+                    <cite>用户管理</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="userQuery">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/user/userManager">用户查询</a>
+                        </dd>
+                    </shiro:hasPermission>
+                    <shiro:hasPermission name="Department">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/toDepartment">部门管理</a>
+                        </dd>
+                    </shiro:hasPermission>
+
+                    <shiro:hasPermission name="changePwdPage">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/user/changePwdPage">修改密码</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>
+        <shiro:hasPermission name="roleManager">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="角色管理" lay-direction="4">
+                    <i class="layui-icon layui-icon-senior"></i>
+                    <cite>角色管理</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="roleManager2">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/roleManager">角色管理</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>
+        <shiro:hasPermission name="clearing">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="发货单清算" lay-direction="4">
+                    <i class="layui-icon layui-icon-template"></i>
+                    <cite>发货单</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="deliverList">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/deliverList">发货导出</a>
+                        </dd>
+                    </shiro:hasPermission>
+                    <shiro:hasPermission name="clearing2">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/clearing">供货商清算</a>
+                        </dd>
+                    </shiro:hasPermission>
+                    <shiro:hasPermission name="liquidation">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/liquidation">行社清算</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>
+       <!-- <shiro:hasPermission name="checkOrder">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="订货单审核" lay-direction="4">
+                    <i class="layui-icon layui-icon-chart-screen"></i>
+                    <cite>订货单审核</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="purchaseList">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/indentorProductreportForm">订货单列表查询</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>-->
+         <shiro:hasPermission name="orderManager">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="订单管理" lay-direction="4">
+                    <i class="layui-icon layui-icon-chart-screen"></i>
+                    <cite>订单管理</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="purchaseManager">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/toPurchaseManager">订货单管理</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="willOrderManager">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/toWillOrderManager">预购单管理</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>
+        <shiro:hasPermission name="indentor">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="审核管理" lay-direction="4">
+                    <i class="layui-icon layui-icon-vercode"></i>
+                    <cite>审核管理</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="userCheckOrg">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/userCheckOrg">审核管理</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>
+        <shiro:hasPermission name="productCheck">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="商品管理" lay-direction="4">
+                    <i class="layui-icon layui-icon-form"></i>
+                    <cite>商品管理</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="productCheckPage">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/productCheckPage">商品审核</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="productAdd">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/addProduct">新增商品</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="productStock">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/productStock">商品库存</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+               <!-- <dl class="layui-nav-child">
+                    <shiro:hasPermission name="productExchange">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/toProductExchange">兑换出库</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>-->
+            </li>
+        </shiro:hasPermission>
+        <shiro:hasPermission name="reportForm">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="报表管理" lay-direction="4">
+                    <i class="layui-icon layui-icon-list"></i>
+                    <cite>报表管理</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="indentorProductreportForm">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/indentorProductreportForm">订单报表</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="toExchangeOrderCount">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/toExchangeOrderCount">自助兑换网点报表</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>
+        <shiro:hasPermission name="statisticsCommoditySales">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="商品统计" lay-direction="4">
+                    <i class="layui-icon layui-icon-chart-screen"></i>
+                    <cite>商品统计</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="statisticsCommoditySalesPage">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/echarts">供货方商品统计</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+               <!-- <dl class="layui-nav-child">
+                    <shiro:hasPermission name="networkRepertory">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/toNetworkRepertory">网点商品库存</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>-->
+            </li>
+        </shiro:hasPermission>
+        <shiro:hasPermission name="rechargeRecord">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="充值记录" lay-direction="4">
+                    <i class="layui-icon layui-icon-rmb"></i>
+                    <cite>充值记录</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="rechargeRecordQuery">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/rechargeRecordQuery">充值记录查询</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>
+
+
+        <shiro:hasPermission name="advertisingManagement">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="广告管理" lay-direction="4">
+                    <i class="layui-icon layui-icon-picture"></i>
+                    <cite>广告管理</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="advertisingManagementPage">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/advertisingManagementPage">广告管理</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>
+
+        <shiro:hasPermission name="invoice">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="发票管理" lay-direction="4">
+                    <i class="layui-icon layui-icon-template"></i>
+                    <cite>发票管理</cite>
+                </a>
+                <dl class="layui-nav-child">
+                    <shiro:hasPermission name="invoiceApplication">
+                      <dd data-name="console">
+                         <a lay-href="/mgt/endoriInvoice">发票申请</a>
+                     </dd>
+                    </shiro:hasPermission>
+                    <shiro:hasPermission name="invoiceCheck">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/invoiceCheck">发票审核</a>
+                        </dd>
+                    </shiro:hasPermission>
+                    <shiro:hasPermission name="invoiceHistory">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/invoiceHistory">发票历史</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>
+
+        <shiro:hasPermission name="mbHomePage">
+            <li data-name="home" class="layui-nav-item">
+                <a href="javascript:;" lay-tips="首页管理" lay-direction="4">
+                    <i class="layui-icon layui-icon-template"></i>
+                    <cite>首页管理</cite>
+                </a>
+                <dl class="layui-nav-child">
+<!--                    <shiro:hasPermission name="toIndexEdit">-->
+<!--                        <dd data-name="console">-->
+<!--                            <a lay-href="/mgtBack/toIndexEdit">首页编辑</a>-->
+<!--                        </dd>-->
+<!--                    </shiro:hasPermission>-->
+                    <shiro:hasPermission name="toIndexEditA">
+                        <dd data-name="console">
+                            <a lay-href="/mgt/toIndexEditA">首页编辑</a>
+                        </dd>
+                    </shiro:hasPermission>
+                </dl>
+            </li>
+        </shiro:hasPermission>
+    </ul>
+
+</div>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>接口</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <link rel="stylesheet" href="css/global.css" media="all">
+    <script src="js/jquery.min.js"></script>
+    <style>
+        .layui-form-label {
+            float: left;
+            display: block;
+            font-weight: 400;
+            line-height: 20px;
+            text-align: right;
+            padding: 0;
+            min-width: 100px;
+            height: 38px;
+            text-align: left;
+            line-height: 38px;
+        }
+    </style>
+</head>
+<body>
+<span>../templates/mbHomePage/</span>
+<span>thymeleaf</span>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <form class="layui-form" action="">
+                        <div class="layui-form-item">
+                            <div class="layui-row padding_redit">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">文字接口</label>
+                                    <div class="layui-input-inline">
+                                        <select id="org" name="org">
+                                            <option th:each="textItfc:${textItfc}" th:value="${textItfc.id}"
+                                                    th:text="${textItfc.name}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">文件广告</label>
+                                    <div class="layui-input-inline">
+                                        <select id="textads3" name="textads3">
+                                            <option th:each="textads3:${textads3}" th:value="${textads3.id}"
+                                                    th:text="${textads3.name}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">公告轮播文本</label>
+                                    <div class="layui-input-inline">
+                                        <select id="textads" name="textads">
+                                            <option th:each="textads:${textads}" th:value="${textads.id}"
+                                                    th:text="${textads.name}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">轮播图</label>
+                                    <div class="layui-input-inline">
+                                        <select id="ads" name="ads">
+                                            <option th:each="ads:${ads}" th:value="${ads.id}"
+                                                    th:text="${ads.name}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="layui-inline">
+                                    <label class="layui-form-label">标题与内容</label>
+                                    <div class="layui-input-inline">
+                                        <select id="categoryList" name="categoryList">
+                                            <option th:each="categoryList:${categoryList}" th:value="${categoryList.id}"
+                                                    th:text="${categoryList.categoryName}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="layui/layui/layui.js"></script>
+<script>
+    layui.use(['form', 'table'], function () {
+        var form = layui.form,
+            util = layui.util,
+            table = layui.table;
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>订货单商品报表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <link rel="stylesheet" href="css/global.css" media="all">
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">订货单商品报表
+                    <!--<div class="layui-btn layui-btn-sm fr  layui-btn-normal layui-btn-add"><i class="layui-icon">&#xe654;</i>添加</div>-->
+                </div>
+                <div class="layui-card-body">
+                    <form class="layui-form">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <div class="layui-input-inline" th:style="'display:' + @{(${type}==3 ? 'block' : 'none')} + ''"  >
+                                    <select name="switchOrg" id="switchOrg"  lay-filter="switchOrg">
+                                        <option value="" >请选择机构</option>
+                                    </select>
+                                </div>
+                                <label class="layui-form-label">开始时间</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" class="layui-input" id="startdate" name="startdate" th:value="${#dates.format(startdate, 'yyyy-MM-dd')}"  autocomplete="off" placeholder="yyyy-MM-dd">
+                                </div>
+                                <label class="layui-form-label">结束时间</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" class="layui-input" th:value="${#dates.format(enddate, 'yyyy-MM-dd')}" id="enddate" name="enddate"  autocomplete="off" placeholder="yyyy-MM-dd">
+                                </div>
+
+                                <div id="organizeSarch" class="layui-btn"
+                                     data-type="reload" onclick="excel()">导出统计表
+                                </div>
+<!--                                <div id="organizeSarch" class="layui-btn"-->
+<!--                                     data-type="reload" >搜索-->
+<!--                                </div>-->
+                            </div>
+                        </div>
+                    </form>
+                    <div class="table-scroll">
+                        <table class="layui-table" id="NocheckTable" lay-filter="NocheckTable">
+                        </table>
+                            <script type="text/html" id="NocheckTool">
+                                <a class="layui-btn layui-btn-xs" lay-event="edit">查看</a>
+                            </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="layui/layui/layui.js"></script>
+<script src="js/jquery.min.js"></script>
+<script>
+    var id = "";
+    layui.use(['table', 'form', 'layer', 'element','laydate'], function () {
+        var table = layui.table,
+            layer = layui.layer,
+            $ = layui.$,
+            element = layui.element,
+            form = layui.form;
+        var laydate = layui.laydate;
+
+
+
+        $.ajax({
+            type: "GET",
+            url: "/mgt/selectOrgInfo",
+            success: function (data) {
+                for (var i = 0; i < data.data.length; i++) {
+                    $("#switchOrg").append('<option value="' + data.data[i].id + '">' + data.data[i].org_name + '</option>');
+                    form.render('select');
+                }
+            }
+        });
+
+        //常规用法
+        laydate.render({
+            elem: '#startdate'
+        });
+        laydate.render({
+            elem: '#enddate'
+        });
+
+
+        render(table,id)
+
+        table.on('tool(NocheckTable)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'edit') {
+                getProduct(data.id);
+            }
+        });
+        form.on('select(switchOrg)', function (data) {
+            orgId = data.elem[data.elem.selectedIndex].value;
+            id = orgId;
+            render(table,id);
+        });
+    });
+
+
+
+    function render(table,id) {
+        var startdate = $('#startdate').val();
+        var enddate = $('#enddate').val();
+        table.render({
+            elem: '#NocheckTable',
+            cellMinWidth: 80,
+            limit: 10,
+            response: {
+                statusCode: 200 //规定成功的状态码，默认：0
+            },
+            where:{
+              id:id
+            },
+            url: "/mgt/getProductForm",
+            cols: [
+                [
+                    {field: 'id', title: 'ID', hide: true},
+                    // {templet: '#indexTpl', title: '序号'},
+                    {field: 'org_name', title: '网点'},
+                    // {title: '起止时间',field:"date"},
+                    {width: 200, align: 'center', title: '搜索', fixed: 'right', toolbar: '#NocheckTool'}
+                ]
+            ],
+            page: true
+
+        });
+    }
+
+    function getProduct(id) {
+        var startdate = $('#startdate').val();
+        var enddate = $('#enddate').val();
+        layer.open({
+            type: 2,
+            title: "商品出库/入库/库存报表",
+            shadeClose: true,
+            shade: 0.8,
+            area: ['88%', '88%'],
+            content: "/mgt/purchaseProductDetail?orgid=" + id+"&startdate=" +startdate+ "&enddate="+enddate
+        });
+    }
+
+
+    function excel() {
+        var startdate = $('#startdate').val();
+        var enddate = $('#enddate').val();
+        window.location.href = "/mgt/orderProductExport?startdate="+startdate+"&enddate="+enddate+"&id="+id;
+    }
+</script>
+</body>
+</html>

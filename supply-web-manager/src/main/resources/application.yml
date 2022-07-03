@@ -1,0 +1,67 @@
+server:
+  port: 8099
+  tomcat:
+    uri-encoding: UTF-8
+    max-http-post-size: 102400000
+spring:
+  server:
+    MaxFileSize: 100MB
+    MaxRequestSize: 100MB
+  profiles:
+    active: core
+  #移动端图片服务器地址
+  imgAddr: http://wx2.tianqun.club
+#  imgAddr: http://localhost:8077
+  #PC端上传图片地址
+#  pcImgAddr: /Users/zhangyuxi/IdeaProjects/supply4/supply-web-mobile/target
+  pcImgAddr: /Users/zyx/IdeaProjects/supply/supply-web-mobile/
+  pcImgAds: /home/supply-manager/
+  pcImgPath: http://localhost:8099
+  resources:
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/static/,classpath:/static/,classpath:/public,file:${spring.pcImgAddr},file:${spring.pcImgAds},classpath:upload/,file:upload/
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+    cache: false
+    mode: LEGACYHTML5
+  http:
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+  messages:
+    encoding: utf-8
+  datasource:
+    #    供货
+    url: jdbc:mysql://192.168.30.23:3306/supply?characterEncoding=UTF-8&allowMultiQueries=true
+    #    永康
+#    url: jdbc:mysql://192.168.30.23:3306/yrcbank_supply?characterEncoding=UTF-8&allowMultiQueries=true
+    username: root
+    password: password01!
+
+    driver-class-name: com.mysql.jdbc.Driver
+  mvc:
+    static-path-pattern: /**
+    servlet:
+      multipart:
+        file-size-threshold: 10MB
+        max-file-size: 10MB
+logging:
+  level:
+    org.springframework.web: INFO
+    com.zjjzfy.*: DEBUG
+  path: ManagerLog
+
+mybatis:
+  type-aliases-package: com.zjjzfy.pojo
+  mapperLocations: classpath*:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+mapper:
+  mappers: com.zjjzfy.pub.PublicMapper
+  not-empty: false
+  identity: mysql
+
+

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户修改</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <script src="js/jquery.min.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">修改用户</div>
+                <div class="layui-card-body">
+                    <div class="layui-form" wid100>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">账号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="username" name="username"
+                                       placeholder="请输入手机号码/账户" readonly
+                                       class="layui-input" autocomplete="off" th:value="${userInfo.username}">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">昵称</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="name" name="name"
+                                       placeholder="请输入用户昵称" class="layui-input"
+                                       autocomplete="off" th:value="${userInfo.name}">
+                            </div>
+                        </div>
+                     <!--   <div class="layui-form-item">
+                            <label class="layui-form-label">行号</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="bankNum" name="bankNum"
+                                       placeholder="请输入用户行号" class="layui-input"
+                                       autocomplete="off" th:value="${userInfo.column1}">
+                            </div>
+                        </div>-->
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">所属单位</label>
+                            <div class="layui-input-inline">
+
+                                    <select id="org" name="org" lay-filter="org">
+                                        <!--th:if = "${orgx.id}==${org.id}"-->
+                                        <option th:each="orgx:${orgs}" th:value="${orgx.id}"
+                                                th:text="${orgx.orgName}" th:type="${orgx.type}"></option>
+                                        <shiro:hasPermission name="userChangeOrg">
+                                        <option th:each="orgx:${orgs}" th:value="${orgx.id}"
+                                                th:text="${orgx.orgName}" th:type="${orgx.type}"></option>
+                                        </shiro:hasPermission>
+                                    </select>
+
+<!--                                <shiro:hasPermission name="userQuery">-->
+<!--                                    <input type="text" class="layui-input" autocomplete="off"-->
+<!--                                           readonly th:value="${org.orgName}">-->
+<!--                                    <input hidden id="org" th:value="${org.id}" th:type="${org.type}">-->
+<!--                                </shiro:hasPermission>-->
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item" id="role">
+                            <label class="layui-form-label">角色</label>
+                            <div class="layui-input-inline">
+                                <select id="roleId" name="roleId">
+                                    <!--平台-->
+                                    <option th:each="role:${roles}" th:value="${role.id}"
+                                            th:if="${org.type} eq '3' and ${role.id} != '5' and ${role.id} != '6' and ${role.id} != '7' and ${userRole} == ${role.id}"
+                                            th:text="${role.description}"></option>
+
+                                    <option th:each="role:${roles}" th:value="${role.id}"
+                                            th:if="${org.type} eq '3' and ${role.id} != '5' and ${role.id} != '6' and ${role.id} != '7' and ${userRole} != ${role.id}"
+                                            th:text="${role.description}"></option>
+
+
+                                    <!--订货方-->
+                                    <option th:each="role:${roles}" th:value="${role.id}"
+                                            th:text="${role.description}"
+                                            th:if="${org.type} eq '2' and (${role.id} eq '6' or ${role.id} eq '7') and ${userRole} == ${role.id}">
+                                    </option>
+                                    <option th:each="role:${roles}" th:value="${role.id}"
+                                            th:text="${role.description}"
+                                            th:if="${org.type} eq '2' and (${role.id} eq '6' or ${role.id} eq '7') and ${userRole} != ${role.id}">
+                                    </option>
+
+
+                                    <!--供货方-->
+                                    <option th:each="role:${roles}" th:value="${role.id}"
+                                            th:text="${role.description}"
+                                            th:if="${org.type} eq '1' and ${role.id} eq '5'">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">备注</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="remark" name="remark"
+                                       class="layui-input" th:value="${userInfo.remark}">
+                            </div>
+                        </div>
+                        <div class="layui-form-item" onclick="userModify()">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-filter="set_system_email">确认保存</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    var roles = [[${roles}]];
+    var userRole = [[${userRole}]];
+    var orgs = [[${orgs}]];
+</script>
+<script src="layui/layui/layui.js"></script>
+<script>
+    layui.config({
+        base: 'layui/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'set']);
+
+    /*$(function () {
+        var type = $("#org").attr("type");
+        if (type == "3" || type == "2") {
+            $("#role").show();
+        } else {
+            $("#role").hide();
+        }
+    })*/
+    layui.use(['form', 'layedit', 'laydate', 'upload'], function () {
+        var $ = layui.jquery
+            , upload = layui.upload
+            , form = layui.form
+            , laydate = layui.laydate
+            , layedit = layui.layedit
+        form.on('select(org)', function (data) {
+            //通过id获得组织类型type
+            var orgType = -1;
+            for (var i = 0, j = orgs.length; i < j; i++) {
+                // console.log("orgs[i].id" + orgs[i].id);
+                // console.log("data.value" + data.value);
+                // console.log("orgs[i].id ==  data.value" +(orgs[i].id ==  data.value));
+                if(orgs[i].id ==  data.value ){
+                    orgType = orgs[i].type;
+                    break;
+                }
+            }
+            // console.log("orgType" + orgType);
+            var list1 = [];
+            if (orgType == 3) {
+                for (var i = 0, j = roles.length; i < j; i++) {
+                    if (roles[i].id != 5 && roles[i].id != 6 && roles[i].id != 7 && userRole == roles[i].id) {
+                        list1.push(roles[i]);
+                    }
+                    if (roles[i].id != 5 && roles[i].id != 6 && roles[i].id != 7 && userRole != roles[i].id) {
+                        list1.push(roles[i]);
+                    }
+                }
+            }
+            if (orgType == 2) {
+                for (var i = 0, j = roles.length; i < j; i++) {
+                    if ((roles[i].id == 6 || roles[i].id == 7) && userRole == roles[i].id) {
+                        list1.push(roles[i]);
+                    }
+                    if ((roles[i].id == 6 || roles[i].id == 7) && userRole != roles[i].id) {
+                        list1.push(roles[i]);
+                    }
+                }
+            }
+            if (orgType == 1) {
+                for (var i = 0, j = roles.length; i < j; i++) {
+                    if (roles[i].id == 5) {
+                        list1.push(roles[i]);
+                    }
+                }
+            }
+            $("#roleId").html('');
+            for (var i = 0, j = list1.length; i < j; i++) {
+                $("#roleId").append('<option value="' + list1[i].id + '" >' + list1[i].description + '</option>');
+                form.render('select');
+            }
+        });
+    });
+    // for (var i = 0,j=roles.length;i<j;i++){
+    //     $("#roleId").append('<option value="' + roles[i].id + '" >' + roles[i].description + '</option>');
+    //     form.render('select');
+    // }
+    function userModify() {
+        var uid = [[${userInfo.uid}]] + "";
+        var name = $("#name").val();
+        var orgid = $("#org").val();
+        var roleId = $("#roleId").val();
+        var remark = $("#remark").val();
+        var username = $("#username").val();
+       /* var bankNum = $("#bankNum").val();*/
+        if (username == "") {
+            // alert("账号为空")
+            luiAlert("提示", "账号为空")
+            return
+        }
+     /*   if (bankNum == "") {
+            // alert("账号为空")
+            luiAlert("提示", "行号号为空")
+            return
+        }*/
+        if (name == "") {
+            // alert("昵称为空")
+            luiAlert("提示", "昵称为空")
+            return
+        }
+        if (org == "") {
+            // alert("所属单位为空")
+            luiAlert("提示", "所属单位为空")
+            return
+        }
+        $.get("/mgt/user/userModify", {
+            "uid": uid,
+            "name": name,
+            "orgid": orgid,
+            "roleId": roleId,
+            "remark": remark,
+            "username": username
+          /*  "column1":bankNum*/
+        }, function (data) {
+            var status = data.status;
+            var msg = data.msg;
+            if (status == 200) {
+                layer.open({
+                    title: '提示'
+                    , content: '修改成功'
+                    , yes: function (index, layero) {
+                        var index = parent.layer.getFrameIndex(window.name)
+                        parent.layer.close(index);
+                        parent.window.location.reload();
+                    }
+                })
+            } else {
+                luiAlert("提示", msg)
+            }
+        })
+    }
+</script>
+</body>
+</html>

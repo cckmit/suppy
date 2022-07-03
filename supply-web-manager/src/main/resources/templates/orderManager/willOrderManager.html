@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>预购单管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <link rel="stylesheet" href="css/global.css" media="all">
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                    <div class="layui-card-header layui-form  layui-card-header layuiadmin-card-header-auto" >
+                        <div class="layui-form-item" style="margin-top: 5px;height: 30px" >
+                            <div class="layui-form layui-col-md6">
+
+                                <div class="layui-input-inline"   >
+                                    <select name="switchOrg" id="switchOrg"  lay-filter="switchOrg">
+                                        <option value="" >请选择机构</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="layui-inline fr layui-hide-xs" style="margin-right: 10px;">
+                                <div class="layui-input-inline">
+                                    <input type="text" name="insStart" lay-verify="insStart"
+                                           class="layui-input" id="test-laydate-start"
+                                           autocomplete="off"
+                                           placeholder="开始日期">
+                                </div>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="insEnd" lay-verify="insEnd"
+                                           class="layui-input" id="test-laydate-end"
+                                           autocomplete="off"
+                                           placeholder="结束日期">
+                                </div>
+                                <button class="layui-btn layui-btn-normal" lay-submit
+                                        lay-filter="formDemo" style="vertical-align: super;">确定
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-card-body">
+                        <table class="layui-table" id="NocheckTable" lay-filter="NocheckTable">
+                        </table>
+                      <!--  <script type="text/html" id="NocheckTool">
+                            <a class="layui-btn layui-btn-xs" lay-event="orderCancel">订单作废</a>
+                        </script>-->
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="layui/layui/layui.js"></script>
+<script th:inline="javascript">
+    var orgId =[[${orgId}]];
+</script>
+<script>
+    var startTime = '';
+    var endTime = '';
+
+    layui.use(['table', 'laydate', 'form', 'layer','util'], function () {
+        var table = layui.table,
+            laydate = layui.laydate,
+            layer = layui.layer,
+            $ = layui.$,
+            util = layui.util,
+            form = layui.form;
+
+
+
+        form.on('select(switchOrg)', function (data) {
+            orgId = data.elem[data.elem.selectedIndex].value;
+            getExchageOrderCount(startTime, endTime,orgId);
+        });
+
+
+        form.on('submit(formDemo)', function (data) {
+            startTime = $("#test-laydate-start").val();
+            endTime = $("#test-laydate-end").val();
+            getExchageOrderCount(startTime, endTime,orgId);
+        });
+
+
+        getExchageOrderCount(startTime,endTime,orgId);
+        function getExchageOrderCount(startTime, endTime,orgId) {
+            table.render({
+                elem: '#NocheckTable',
+                url: "/mgt/selectWillOrder",
+                where:{
+                    "startTime":startTime,
+                    "endTime":endTime,
+                    "orgId":orgId
+                },
+                cellMinWidth: 80,
+                request: {
+                    pageName: 'pageNo', //页码的参数名称，默认：page
+                    limitName: 'pageSize' //每页数据量的参数名，默认：limit
+                },
+                toolbar: '#toolbarDemo',
+                parseData: function (res) {
+                    return {
+                        "code": 0,
+                        "msg": "",
+                        "count": res.data.total,
+                        data: res.data.list
+                    }
+                },
+                cols: [
+                    [
+                      /*  {field: 'id', title: 'ID', hide: true},*/
+                        {field: 'name', title: '商品名称'},
+                        {field: 'price', title: '价格'},
+                        {field: 'quantity', title: '数量'},
+                        {field: 'createTime', title: '创建时间',width:200,templet: function (d) {
+                                return util.toDateString(d.createTime);
+                            }},
+                        {field: 'orgName', title: '银行'},
+                        {field: 'userName', title: '账户'},
+                        {field: 'uname', title: '客户名'},
+                        {field: 'phone', title: '电话'},
+                        {field: 'addr', title: '地址'},
+                       /* {width: 200, align: 'center', title: '操作', fixed: 'right', toolbar: '#NocheckTool'}*/
+                    ]
+                ],
+                page: true
+
+            });
+        }
+
+        queryOrgInfo()
+        function queryOrgInfo() {
+            $.ajax({
+                type: "GET",
+                url: "/mgt/selectOrgInfo",
+                success: function (data) {
+                    for (var i = 0; i < data.data.length; i++) {
+                        $("#switchOrg").append('<option value="' + data.data[i].id + '">' + data.data[i].org_name + '</option>');
+                        form.render('select');
+                    }
+                }
+            });
+        }
+
+
+        //开始日期
+        var insStart = laydate.render({
+            elem: '#test-laydate-start'
+            , done: function (value, date) {
+                //更新结束日期的最小日期
+                insEnd.config.min = lay.extend({}, date, {
+                    month: date.month - 1
+                });
+            }
+        });
+
+        //结束日期
+        var insEnd = laydate.render({
+            elem: '#test-laydate-end'
+        });
+    });
+
+</script>
+</body>
+</html>

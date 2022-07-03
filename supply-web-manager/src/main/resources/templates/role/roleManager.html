@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>角色管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <link rel="stylesheet" href="css/global.css" media="all">
+    <script type=text/javascript src="js/jquery.min.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md5">
+            <div class="layui-card">
+                <div class="layui-card-header">角色列表</div>
+                <div class="layui-card-body">
+                    <table class="layui-hide" id="tableRole" lay-filter="tableRole"></table>
+                    <script type="text/html" id="Role">
+                        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                    </script>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md7">
+            <div class="layui-card jurisdiction">
+                <div class="layui-card-header">菜单权限
+<!--                    <div class="layui-btn layui-btn-sm fr  layui-btn-normal layui-btn-add"-->
+<!--                         style="float: right;margin-top: 6px;padding: 0 16px;">-->
+<!--                        <i class="layui-icon" style="right: 55px;top: 42%;margin-top: -6px;"></i>添加-->
+<!--                    </div>-->
+                  <div class="layui-btn layui-btn-sm fr  layui-btn-normal layui-btn-add">
+                    <i class="layui-icon">&#xe654;</i>添加
+                  </div>
+                </div>
+                <div class="layui-card-body">
+                    <div class="layui-row layui-col-space10">
+                        <div class="layui-col-md6">
+                            <form class="layui-form">
+                                <div id="LAY-auth-tree-index"></div>
+                            </form>
+                        </div>
+
+                        <div class="layui-col-md6">
+                            <div class="layui-form">
+                                <div class="layui-form-item">
+                                    <label>角色名：</label>
+                                    <div>
+                                        <input type="text" id="roleName" name="title" lay-verify="title"
+                                               autocomplete="off"
+                                               placeholder="请输入角色名称" class="layui-input">
+                                        <input hidden type="text" id="roleId">
+                                    </div>
+                                </div>
+                                <button class="layui-btn layui-btn-normal" onclick="roleChange()">确定修改</button>
+                                <button class="layui-btn layui-btn-danger" onclick="roleDelete()">删除角色</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="layui/layui/layui.js"></script>
+<script>
+
+    layui.config({
+        base: 'layui/lib/extend/',
+    }).extend({
+        authtree: 'authtree',
+    });
+
+    layui.use(['jquery', 'authtree', 'form', 'layer'], function () {
+        var $ = layui.jquery;
+        var authtree = layui.authtree;
+        var form = layui.form;
+        var layer = layui.layer;
+        // 初始化
+        $.ajax({
+            url: "/mgt/getPermissionAll",
+            // url: '/mgt/js/tree.json',
+            dataType: 'json',
+            success: function (data) {
+                console.log(data)
+                // 渲染时传入渲染目标ID，树形结构数据（具体结构看样例，checked表示默认选中），以及input表单的名字
+                authtree.render('#LAY-auth-tree-index', data.data.trees, {
+                    inputname: 'ids[]'
+                    , autowidth: true
+                });
+
+                // PS:使用 form.on() 会引起了事件冒泡延迟的BUG，需要 setTimeout()，并且无法监听全选/全不选
+                // 使用 authtree.on() 不会有冒泡延迟
+                authtree.on('change(lay-check-auth)', function (data) {
+                    console.log('监听 authtree 触发事件数据', data);
+                    // 获取所有节点
+                    var all = authtree.getAll('#LAY-auth-tree-index');
+                    // 获取所有已选中节点
+                    var checked = authtree.getChecked('#LAY-auth-tree-index');
+                    // 获取所有未选中节点
+                    var notchecked = authtree.getNotChecked('#LAY-auth-tree-index');
+                    // 获取选中的叶子节点
+                    var leaf = authtree.getLeaf('#LAY-auth-tree-index');
+                    // 获取最新选中
+                    var lastChecked = authtree.getLastChecked('#LAY-auth-tree-index');
+                    // 获取最新取消
+                    var lastNotChecked = authtree.getLastNotChecked('#LAY-auth-tree-index');
+                    console.log(
+                        'all', all, "\n",
+                        'checked', checked, "\n",
+                        'notchecked', notchecked, "\n",
+                        'leaf', leaf, "\n",
+                        'lastChecked', lastChecked, "\n",
+                        'lastNotChecked', lastNotChecked, "\n"
+                    );
+                });
+                authtree.on('deptChange(lay-check-auth)', function (data) {
+                    console.log('监听到显示层数改变', data);
+                });
+                authtree.on('dblclick(lay-check-auth)', function (data) {
+                    console.log('监听到双击事件', data);
+                });
+            },
+            error: function (xml, errstr, err) {
+                layer.alert(errstr + '，获取样例数据失败，请检查是否部署在本地服务器中！');
+            }
+        });
+
+    });
+</script>
+
+<script>
+    var initTable = function () {
+        layui.use(['table', 'form', 'layer', 'tree'], function () {
+            var table = layui.table,
+                layer = layui.layer,
+                $ = layui.$,
+                form = layui.form;
+
+            table.render({
+                elem: '#tableRole'
+                , url: "/mgt/getRoleAll"
+                , cellMinWidth: 80
+                , response: {
+                    statusCode: 200 //规定成功的状态码，默认：0
+                }
+                , height: $(window).height() - 100 + 'px'
+                , cols: [
+                    [
+                        {field: 'id', title: 'ID'}
+                        , {field: 'description', title: '角色名称'}
+                        , {align: 'center', title: '操作', fixed: 'right', toolbar: '#Role'}
+                    ]
+                ]
+                , page: false
+            });
+
+            table.on('tool(tableRole)', function (obj) {
+                var data = obj.data;
+                if (obj.event === 'edit') {
+                    var id = data.id;
+                    var description = data.description;
+                    var roleId = $("#roleId").val();
+                    if (roleId == id) {
+                        return;
+                    }
+
+                    $("#roleId").val(id);
+                    $("#roleName").val(description)
+                    getPemission('#LAY-auth-tree-index', id);
+                }
+            });
+        });
+    }
+    initTable();
+
+    $('body').on('click', '.layui-table-main tr', function () {
+        var id = $(this).find(".laytable-cell-1-0-0").html()
+        var description = $(this).find(".laytable-cell-1-0-1").html()
+        var roleId = $("#roleId").val();
+        if (roleId == id) {
+            return;
+        }
+
+        $(this).siblings("tr").removeClass("layui-table-click");
+        $(this).addClass("layui-table-click");
+        $("#roleId").val(id);
+        $("#roleName").val(description)
+        getPemission('#LAY-auth-tree-index', id);
+    })
+
+    function getPemission(dst, id) {
+        $.post("/mgt/getPermissionByRoleId", {"roleId": id}, function (data) {
+            console.log(data)
+            $('.authtree-checkitem').prop('checked', false)
+            $('.authtree-checkitem').parents('.auth-child').slideUp('fast');
+            $('.authtree-checkitem').prev('.auth-icon').removeClass('active').html('')
+
+            $(data).each(function () {
+                var checkBox = $("input[value='" + this + "']");
+                layui.use(['layer', 'authtree'], function () {
+                    var layer = layui.layer;
+                    var authtree = layui.authtree;
+
+                    checkBox.next().click()
+                    authtree.selectOpen(dst)
+                });
+            })
+        })
+    }
+
+    function roleChange() {
+        var roleId = $("#roleId").val();
+        var roleName = $("#roleName").val();
+        var ids = "";
+        var index = 0;
+        $(".layui-form-checked").each(function () {
+            var id = $(this).parent().find("input").val();
+            if (id == undefined) {
+                return
+            }
+            index++;
+            if (index == 1) {
+                ids += id;
+            } else {
+                ids += "," + id;
+            }
+        })
+
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: "/mgt/rolePermissionChange",
+            data: {"permissionStr": ids, "roleId": roleId, "roleName": roleName},
+            success: function (data) {
+                var msg = data.msg;
+                var status = data.status;
+                if (status == 200) {
+                    layer.open({
+                        title: '提示'
+                        , content: '修改成功'
+                        , yes: function (index, layero) {
+                            window.location.reload();
+                        }
+                    })
+                } else {
+                    layer.open({
+                        title: '提示'
+                        , content: msg
+                    })
+                }
+            }
+        })
+    }
+
+    function roleDelete() {
+        var roleId = $("#roleId").val();
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: "/mgt/roleDelete",
+            data: {"roleId": roleId},
+            success: function (data) {
+                var msg = data.msg;
+                var status = data.status;
+                if (status == 200) {
+                    layer.open({
+                        title: '提示'
+                        , content: '删除成功'
+                        , yes: function () {
+                            window.location.reload();
+                        }
+                    })
+                } else {
+                    layer.open({
+                        title: '提示'
+                        , content: msg
+                    })
+                }
+            }
+        })
+    }
+
+    $('.layui-btn-add').click(function () {
+        var index = layer.open({
+            type: 2,
+            title: '添加角色',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['580px', '30%'],
+            content: '/mgt/roleAddPage'
+        });
+    })
+</script>
+</body>
+</html>
+

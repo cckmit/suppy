@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>网点员工新增</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="layui/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="layui/style/admin.css" media="all">
+    <script src="js/jquery.min.js"></script>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">新增单位</div>
+                <div class="layui-card-body">
+                    <div class="layui-form" wid100>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">机构</label>
+                            <div class="layui-input-inline">
+                                <select name="getOrg" id="getOrg" lay-filter="getOrg">
+                                    <option value="">选择机构</option>
+                                </select>
+                            </div>
+                            <input type="text" id="org" name="org"
+                                   class="layui-input layui-hide">
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">姓名</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="name" name="name"
+                                       placeholder="请输入员工姓名"
+                                       class="layui-input">
+                            </div>
+
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">所属部门</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="deptment" name="deptment"
+                                       placeholder="请输入所属部门名称"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item" id="orgnizeType">
+                            <label class="layui-form-label">电话号码</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="phoneNum" name="phoneNum"
+                                       placeholder="请输入电话号码"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                       <!-- <div class="layui-form-item">
+                            <label class="layui-form-label">地址</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="address" name="address"
+                                       placeholder="请输入员工地址"
+                                       class="layui-input">
+                            </div>
+                        </div>-->
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">身份证号码</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="cardNo" name="cardNo"
+                                       placeholder="请输入员工身份证号码"
+                                       class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item" onclick="networkAdd()">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-filter="set_system_email">确认保存</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="layui/layui/layui.js"></script>
+<script>
+    layui.use(['table', 'carousel', 'laydate', 'form', 'layer'], function () {
+        var table = layui.table,
+            carousel = layui.carousel,
+            laydate = layui.laydate,
+            layer = layui.layer,
+            $ = layui.$,
+            form = layui.form;
+
+        // 获取机构
+        $.ajax({
+            type: "GET",
+            url: "/mgt/selectOrgInfo",
+            success: function (data) {
+                for (var i = 0; i < data.data.length; i++) {
+                    $("#getOrg").append('<option value="' + data.data[i].id + '" >' + data.data[i].org_name + '</option>');
+                }
+                form.render('select');
+            }
+        });
+
+        form.on('select(getOrg)', function (data) {
+            var id = data.elem[data.elem.selectedIndex].value;
+            $("#org").val(id);
+        });
+    })
+
+
+
+    function networkAdd() {
+        var orgId = $("#org").val();
+        var name = $("#name").val();
+        var deptment = $("#deptment").val();
+        var phoneNum = $("#phoneNum").val();
+        var cardNo = $("#cardNo").val();
+
+        if (orgId == "") {
+            luiAlert("提示", "请选择员工机构")
+            return
+        }
+        if (name == "") {
+            luiAlert("提示", "请填写员工姓名")
+            return
+        }
+        if (deptment == "") {
+            luiAlert("提示", "请填写员工所属部门")
+            return
+        }
+        if (phoneNum == "") {
+            luiAlert("提示", "手机号码不能为空")
+            return
+        }
+        if (cardNo == "") {
+            luiAlert("提示", "身份证号码不能为空")
+            return
+        }
+        $.get("/mgt/insertNetWorkUser", {
+            "orgId": orgId,
+            "name": name,
+            "deptment": deptment,
+            "phoneNum": phoneNum,
+            "cardNo": cardNo
+        }, function (data) {
+            var status = data.status;
+            var msg = data.msg;
+            if (status == 200) {
+                layer.open({
+                    title: '提示'
+                    , content: '新增成功'
+                    , yes: function (index, layero) {
+                        var index = parent.layer.getFrameIndex(window.name)
+                        parent.layer.close(index);
+                        parent.window.location.reload();
+                    }
+                })
+            } else {
+                luiAlert("提示", msg)
+            }
+        })
+    }
+</script>
+</body>
+</html>

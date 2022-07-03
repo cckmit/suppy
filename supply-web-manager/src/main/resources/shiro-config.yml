@@ -1,0 +1,14 @@
+shiro:
+  hashAlgorithmName: md5
+  hashIterations: 2
+  globalSessionTimeout: 900000
+  loginUrl: /mgt/login
+  successUrl: /mgt/layout
+  unauthorizedUrl: /403
+  filterChain:  /mgtBack/**,/upload1/**,/upload/**,/mgt/images/**,/static/**,/mgt/layui/**,/mgt/common/**,/mgt/login,/favicon.ico,/rest/**,/**
+  filterChainAuth: anon,anon,anon,anon,anon,anon,anon,anon,anon,anon,authc
+#  filterChain: { "/static/**": anon, "/login": anon, "/logout": logout, "/**": authc }
+#    "[/static/**]": anon
+#    "[/login]": anon
+#    "[/logout]": logout
+#    "[/**]": authc
