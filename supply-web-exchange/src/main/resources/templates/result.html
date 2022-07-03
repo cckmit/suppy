@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+    <title>结果页</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.form.js"></script>
+    <script type="text/javascript" src="/js/result.js"></script>
+    <script language="javascript" src="/js/LodopFuncs.js"></script>
+</head>
+<body>
+<!--pos ocx-->
+<OBJECT id="trans" width=0 height=0 CLASSID="CLSID:37E957C6-82B4-48AA-8C68-BE926A3589A3">
+    <param name="_Version" value="65536">
+    <param name="_ExtentX" value="979">
+    <param name="_ExtentY" value="900">
+    <param name="_StockProps" value="0">
+</OBJECT>
+<!--/pos ocx-->
+<!--print ocx-->
+<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0 style="position:absolute;left:0px;top:-10px;"></object>
+<object id="LODOP_EM" type="application/x-print-lodop" width=0 height=0 style="position:absolute;left:0px;top:-10px;"></object>
+<!--/print ocx-->
+<div class="head">
+    <a class="logo" href="#"><img src="/images/logo_tzb.png"></a>
+    <div class="nav">
+        <a href="/" class="home"><img src="/images/icon-home.png">返回首页</a>
+    </div>
+</div>
+
+<div class="wrap">
+    <div class="content content_reset">
+        <div th:if="${order} ne null" class="convert_details">
+            <div class="purchase_process">
+                <div style="overflow: hidden;">
+                    <div class="process_des">
+                        <div>选择商品</div>
+                        <div style="text-align: center">生成订单</div>
+                        <div style="text-align: right">支付</div>
+                    </div>
+                </div>
+                <div class="no_process">
+                    <div class="pxb">1</div>
+                    <div class="js">2</div>
+                    <div class="wc">3</div>
+                    <div th:class="${order.main.status} eq '1' ? 'process_bar wc' : 'process_bar js'"></div>
+                </div>
+            </div>
+            <div th:if="${order.main.status} eq 1" class="success_details">
+                <img src="/images/duihao-green.png" >
+                <p class="success_tip">恭喜你支付成功!</p>
+                <p>以下为本次兑换清单</p>
+                <p>请<b>持打印小票找服务经理</b>领取实物礼品!</p>
+            </div>
+            <div class='gifts_details'>
+                <div class="order_no_bg">
+                    <div class="order_No">
+                        <i class="before_icon"></i>
+                        兑换单号：<span id="billno" th:text="${order.main.billno}"></span>
+                    </div>
+                </div>
+                <div class="table_display">
+                    <table class="table table-border">
+                        <thead>
+                        <td>礼品图</td>
+                        <td>名称</td>
+                        <td>单价(积分)</td>
+                        <td>数量</td>
+                        <td class="text_right">小计(积分)</td>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item:${order.list}">
+                            <td>
+                                <img th:src="${item.product.image}" class="img_td" onerror="javascript:this.src='/images/404.png';">
+                            </td>
+                            <td th:text="${item.product.name}"></td>
+                            <td th:text="${#numbers.formatDecimal(item.detail.purchasePrice * 100,0,0)}"></td>
+                            <td th:text="${item.detail.quantity}"></td>
+                            <td th:text="${#numbers.formatDecimal(item.detail.point * 100,0,0)}" class="text_right"></td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="5" class="text_right">
+                                共<i th:text="${order.main.totalQuantity}" class="num"></i>件商品,
+                                总价:<i id="total-JF" th:text="${#numbers.formatDecimal(order.main.totalPrice*100,0,0)}" class="num"></i>积分
+                                折合人民币:<i id="totalPrice" th:text="${order.main.totalPrice}" class="num"></i>元
+
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="placeholder"></div>
+            </div>
+            <div th:if="${order.main.status} eq 0" class="return_home return_bottom_reset" id="pay">去支付</div>
+            <div th:if="${order.main.status} eq 0" class="return_home" id="rePay">重新打开支付页面</div>
+            <form action="/order/pay" method="post" id="form">
+                <input class="display_none" th:attr="value=${session.paycode}" type="text" name="paycode"/> <br/>
+                <input class="display_none" th:attr="value=${order.main.billno}" type="text" name="billno"/> <br/>
+                <input class="display_none" value="" type="text" name="remark" id="remark"/> <br/>
+
+                <br/>
+            </form>
+        </div>
+
+        <div th:if="${order} eq null" class="text_center error_tip" >
+            没有该订单！
+        </div>
+    </div>
+</div>
+
+<!--刷卡提示单提示框-->
+<div class="conversion_alert pay-wait">
+    <div class="alert_dialog">
+        <div class="alert_icon">
+            <img src="/images/dkq.gif">
+            <div class="des">请进行刷卡支付！</div>
+        </div>
+        <div class="alert_opt text_center error_tip">
+            等待支付...
+        </div>
+    </div>
+</div>
+<!--消息提示框-->
+<div class="conversion_alert pop-msg">
+    <div class="alert_dialog">
+        <div class="alert_icon">
+            <img src="/images/tanhao-blue.png">
+            <div class="des"></div>
+        </div>
+        <div class="alert_opt">
+            <div class="cancel">知道了</div>
+            <div class="sure">好的</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

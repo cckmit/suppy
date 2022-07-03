@@ -1,0 +1,25 @@
+1.实例：在父节点执行
+install:install-file -Dfile=lib/AXMLPrinter2.S.jar -DgroupId=self.axml -DartifactId=AXMLPrinter -Dversion=1.0 -Dpackaging=jar
+install:install-file -Dfile=lib/jdom.jar -DgroupId=self.jdom -DartifactId=jdom -Dversion=1.0 -Dpackaging=jar
+
+
+2.然后在POM中引用：
+
+<dependency>
+			<groupId>self.jdom</groupId>
+			<artifactId>jdom</artifactId>
+			<version>1.0</version>
+</dependency>
+<dependency>
+			<groupId>self.axml</groupId>
+			<artifactId>AXMLPrinter</artifactId>
+			<version>1.0</version>
+</dependency>
+
+3.移除
+//清除某个jar
+mvn dependency:purge-local-repository -DmanualInclude="groupId:artifactId"
+//清除多个属于不同groupId的jar
+mvn dependency:purge-local-repository -DmanualInclude="groupId1:artifactId1,groupId2:artifactId2,..."
+//第二步,阻止Maven对已删除的jar进行reResolve
+mvn dependency:purge-local-repository -DreResolve=false

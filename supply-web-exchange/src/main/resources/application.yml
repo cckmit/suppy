@@ -1,0 +1,81 @@
+debug: false
+
+myconfig:
+  bank-name-zh: 台州银行
+  bank-name-en: TAIZHOUBANK
+  page-size: 16
+  img-location: /home/supply-mobile/
+  #  api服务地址
+  host: http://192.168.30.23:8085/
+  #  图片服务器地址,服务端地址;
+  img-server: http://wx2.tianqun.club/
+  #  机构缓存 刷新时间，单位毫秒
+  org-refresh-interval: 600000
+  #  产品缓存 刷新时间，单位毫秒
+  product-refresh-interval: 600000
+  #  签名存放路径，可以为空，默认路径为jar宝目录下的/signature
+  signature-path:
+  #  是否打开web自助兑换，默认关闭（false）web自助兑换已被app兑换取代，
+  web-exchange: false
+
+server:
+  port: 8100
+  tomcat:
+    uri-encoding: UTF-8
+    max-http-post-size: 102400000
+  servlet:
+    session:
+      timeout: 15m
+spring:
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  resources:
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/static/,classpath:/static/,classpath:/public,file:${spring.http.multipart.location},file:apk/
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+    cache: false
+    mode: LEGACYHTML5
+  http:
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+    multipart:
+      location: ${myconfig.img-location}
+  messages:
+    encoding: utf-8
+  datasource:
+    url: jdbc:mysql://192.168.30.23:3306/supply?characterEncoding=UTF-8&allowMultiQueries=true
+    username: root
+    password: password01!
+    driver-class-name: com.mysql.jdbc.Driver
+
+
+  mvc:
+    static-path-pattern: /**
+    servlet:
+      multipart:
+        file-size-threshold: 10MB
+        max-file-size: 10MB
+mybatis:
+
+  mapperLocations: classpath*:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  file:
+    max-size: 100MB
+    max-history: 10
+  level:
+    org.springframework.web: INFO
+    com.zjjzfy.exchange: DEBUG
+    com.zjjzfy.interfaces: DEBUG
+  path: exchanghe-log
+client:
+  public-key: MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCoN8/6VN/6Xq2EupGFIsu2ENpzLR/Ny1b7A74BThVvGljvWyCpEg2UaOPDt4H+S4KtU1T8zePkCecmcHNV0gzzH/PxZ9j8Znj9mfGVAoR33i+2N/zbNfiJ8Dq0Ivb2m28rNmAslGVvVZOC8iFgw3hoFwtlzvwkrmZaAQKdKnE5aQIDAQAB

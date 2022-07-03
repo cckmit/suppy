@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+    <title>购物车</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.form.js"></script>
+    <script type="text/javascript" src="/js/shopping-cart.js"></script>
+    <script src="http://apps.bdimg.com/libs/respond.js/1.4.2/respond.min.js"></script>
+</head>
+
+<body>
+<div class="head">
+    <a class="logo" href="#"><img src="/images/logo_tzb.png"></a>
+    <div class="nav">
+        <a href="/" class="home"><img src="/images/icon-home.png">继续选购</a>
+        <a href="#" class="expense_calendar recent"><img src="/images/xfjl.png">上一单</a>
+    </div>
+</div>
+
+
+<div class="wrap">
+    <div class="content content_reset">
+        <div class="convert_details">
+            <div class="purchase_process">
+                <div style="overflow: hidden;">
+                    <div class="process_des">
+                        <div>选择商品</div>
+                        <div style="text-align: center">生成订单</div>
+                        <div style="text-align: right">支付</div>
+                    </div>
+                </div>
+                <div class="no_process">
+                    <div class="pxb">1</div>
+                    <div class="js">2</div>
+                    <div class="wc">3</div>
+                    <div th:class="${session.cart.basket.size()==0} ? 'process_bar' : 'process_bar pxb'"></div>
+                </div>
+            </div>
+            <div class="table_display">
+                <form action="/cart/submit" method="post" id="form">
+                    <div class="display_none"><input th:attr="value=${session.token}" name="token"/></div>
+                    <table class="table table-border">
+                        <thead class="order_no_bg">
+                        <tr>
+                            <td>礼品图</td>
+                            <td>名称</td>
+                            <!--<td>礼品ID</td>-->
+                            <td>价格(积分)</td>
+                            <td>数量</td>
+                            <td>小计(积分)</td>
+                            <td>操作</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="map:${session.cart.basket}">
+                            <td><img th:attr="src=${map.value.product.image}" class="img_td" onerror="javascript:this.src='/images/404.png';"></td>
+                            <td th:text="${map.value.product.name}"></td>
+                            <td th:text="${map.value.product.exchangePrice}" class="danjia display_none"></td>
+                            <td th:text="${#numbers.formatDecimal(map.value.product.exchangePrice * 100, 0, 0)}" class="danjia-JF"></td>
+                            <!--<td th:text="${map.value.product.id}"></td>-->
+                            <td>
+                                <label class="opt">
+                                    <label>
+                                        <i class="del_icon cart-reduce-one"></i>
+                                        <i class="result" th:text="${map.value.amount}"></i>
+                                        <i class="add_icon cart-add-one"></i>
+                                        <input class="display_none" type="text" th:attr="value=${map.value.product.id}"
+                                               name="productIds">
+                                        <input class="display_none" type="text" th:attr="value=${map.value.amount}"
+                                               name="counts">
+                                    </label>
+                                </label>
+                            </td>
+                            <td class="xiaoji display_none" th:text="${map.value.amount * map.value.product.exchangePrice}"></td>
+                            <td class="xiaoji-JF" th:text="${#numbers.formatDecimal( map.value.amount * map.value.product.exchangePrice * 100, 0, 0)}"></td>
+                            <td><img class="cart-delete" src="/images/sc.png"></td>
+                        </tr>
+
+                        <tr>
+
+                            <td colspan="6" class="table_foot">
+
+                                <label>共<i class="num totalcount">0</i>件商品</label>
+                                <label>总消费：<i class="num heji-JF">0</i>积分</label>
+                                <label>折合人民币：<i class="num heji">0</i>元</label>
+
+                                <label class="js_btn" id="submitButton">生成订单</label>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--生成订单提示框-->
+<div class="conversion_alert submit-comfirm">
+    <div class="alert_dialog">
+        <div class="alert_icon">
+            <img src="/images/dhwh.png">
+            <div class="des">确定生成订单吗？</div>
+        </div>
+        <div class="alert_opt">
+            <div class="cancel">取消</div>
+            <div class="sure">确认</div>
+        </div>
+    </div>
+</div>
+<!--消息提示框-->
+<div class="conversion_alert pop-msg">
+    <div class="alert_dialog">
+        <div class="alert_icon">
+            <img src="/images/tanhao-blue.png">
+            <div class="des"></div>
+        </div>
+        <div class="alert_opt">
+            <div class="cancel">知道了</div>
+            <div class="sure"><a href="/" style="z-index: auto">马山就去</a></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

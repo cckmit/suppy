@@ -1,0 +1,22 @@
+1.订单提交接口 /cart/submit
+"注意contentType:application/json"
+
+所需实体类：Param ，OrderSubmitBody
+按顺序组合成OrderSubmitBody 对象体。
+private List<Integer> productIds; -- 礼品id
+private List<Integer> counts; -- 对应的数量
+private String branchno; -- 网点机构号
+
+将 JSON.toJSONString(OrderSubmitBody） 作为 Param.cs
+
+对Param.cs算出签名（RsaUtil.sign(Param,私钥)）。
+
+请求接口 POST方式，带上参数 param=JSON.toJSONString(Param)
+
+
+
+2.订单支付成功通知接口 /order/pay
+"注意contentType:application/json"
+
+所需实体类：Param，OrderPayBody
+类似1.

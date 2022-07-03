@@ -1,0 +1,9 @@
+shiro:
+  hashAlgorithmName: md5
+  hashIterations: 2
+  globalSessionTimeout: 900000
+  loginUrl: /mbl/login
+  successUrl: /mbl/home
+  unauthorizedUrl: /403
+  filterChain: /**,/some
+  filterChainAuth: anon,authc

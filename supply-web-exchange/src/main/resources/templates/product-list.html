@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=8,Chrome=1" />
+    <title>礼品首页</title>
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.form.js"></script>
+    <script type="text/javascript" src="/js/jquery.tmpl.min.js"></script>
+    <script type="text/javascript" src="/js/product-list.js"></script>
+</head>
+<body>
+<!--单页礼品数量设置-->
+<div th:text="${pageSize}" class="pageSize display_none"></div>
+<div id="price-order" class="pageSize display_none">asc</div>
+<div class="head">
+    <a class="logo" href="#"><img src="/images/logo_tzb.png"></a>
+    <div class="nav">
+        <a href="http://localhost:8077/purchase/index" class="turn"  > <img src="images/icon-home.png">去采购</a>
+        <a href="/" class="home"><img src="images/icon-home.png">首页</a>
+        <a href="/cart" class="shoping"><img src="images/icon-shoping.png">
+            购物篮
+            <!--<i class="badge">12</i>-->
+        </a>
+    </div>
+</div>
+
+<div class="wrap">
+    <div class="hd">
+        <div class="classify"><span><div class="val" value="-1">全部分类</div> <i class="arrow-bt"></i></span>
+            <!--<div class="dropdown">-->
+                <!--<a href="#" value="-1">全部分类</a>-->
+                <!--<a th:each="ca:${cates}" th:attr="value=${ca.id}" th:text="${ca.categoryName}"></a>-->
+            <!--</div>-->
+            <!--<div class="classifybgbt display_none"></div>-->
+        </div>
+        <div class="sort">
+            <!--<a href="javascript:void(0)" class="sort-num">兑量<i class="icon-sort"></i><i class="sp"></i></a>-->
+            <a href="javascript:void(0)"><label for="cbx"><input type="checkbox" id="cbx"/>只看有货</label><i class="sp"></i></a>
+            <a href="javascript:void(0)" class="sort-price">价格<i class="icon-sort asc"></i><i class="sp"></i></a>
+            <a href="javascript:void(0)" class="sort-price">当前网点：<i th:text="${orgInfo.orgName}"></i></a>
+            <!--<a href="javascript:void(0)" class="sort-integral">按积分<i class="icon-sort"></i></a>-->
+        </div>
+    </div>
+    <div class="bd">
+        <ul class="goods-list" id="product-contain"></ul>
+        <ul class="classify-pic">
+            <li ><a href="#" value="-1"><img src="images/10.png" alt=""><span>全部分类</span></a></li>
+            <li th:each="ca:${cates}"><a href="#"  th:attr="value=${ca.id}"><img th:attr="src=${ca.img}" alt=""><span th:text="${ca.categoryName}"></span></a></li>
+        </ul>
+        <div class="ftbg"></div>
+    </div>
+</div>
+
+<div class="page">
+    <a href="#" class="home page-first">首页</a>
+    <a href="#" class="prev prePage">上一页</a>
+    <a href="#" class="home">
+        <span class="pageNum"></span>/<span class="pages"></span>
+    </a>
+    <a href="#" class="next nextPage">下一页</a>
+    <a href="#" class="last page-last">末页</a>
+</div>
+
+<!-- 礼品详情 -->
+<div class="gift_details">
+    <div class="contents">
+        <div class="details_title">
+            <label>商品详情</label>
+            <i class="icon_close"></i>
+        </div>
+        <div class="details_cxt" id="product-detail-contain">
+            <div class="img_container">
+                <div class="img_left">
+                    <div class="big_images">
+                        <img src="images/1.png">
+                    </div>
+                    <div class="sm_container">
+                        <div class="sm_container_con">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="gift_introduce">
+                    <div class="des">
+                        <p>
+                            <label class="tag">名称</label>
+                            <label class="cxt">evian矿泉水</label>
+                        </p>
+                        <p>
+                            <label class="tag">兑换编号</label>
+                            <label class="cxt">TAN001</label>
+                        </p>
+                        <p>
+                            <label class="tag">品牌</label>
+                            <label class="cxt">evian</label>
+                        </p>
+                        <p>
+                            <label class="tag">规格/型号</label>
+                            <label class="cxt">20000MA</label>
+                        </p>
+                        <p>
+                            <label class="tag">库存</label>
+                            <label class="cxt">962</label>
+                        </p>
+                        <p class="price">
+                            <label class="tag">价格</label>
+                            <label class="cxt" style="color:#999999;"><i class="num">50</i>积分</label>
+                        </p>
+                        <p>
+                            <label class="tag">选择数量</label>
+                            <label class="opt">
+                                <label>
+                                    <i class="del_icon"></i><i class="result">1</i><i class="add_icon"></i>
+                                </label>
+                            </label>
+                        </p>
+                    </div>
+                    <div class="add_shop">
+                        <div class="dh">立即兑换</div>
+                        <div class="gw">加入购物车</div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="tip">
+                碳积分特供，是指欧盟设立的二氧化碳排放配额，企业或个人通过购买碳积分消除碳足 迹。 在中国以下地方可以购买碳积分
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</div>
+
+<!--信息弹出框-->
+<div class="conversion_alert">
+    <div class="alert_dialog">
+        <div class="alert_icon">
+            <img src="/images/icon-notice.png" >
+            <div class="des">请求数据出现异常！</div>
+        </div>
+        <div class="alert_opt">
+            <div class="cancel">取消</div>
+            <div class="sure">确认</div>
+        </div>
+    </div>
+
+</div>
+<script id="product-detail-template" type="text/x-jquery-tmpl">
+            <div class="img_container">
+                <div class="img_left">
+                    <div class="big_images">
+                        <img src="${product.image}" onerror="javascript:this.src='/images/404.png';">
+                    </div>
+                    <div class="sm_container">
+                    <div class="sm_container_con">
+                         <div>
+                            {{if imgs }}
+                            {{each imgs}}
+                                {{if $index == 0}}
+                                <div class="sm_images selected">
+                                {{else}}
+                                <div class="sm_images">
+                                {{/if}}
+                                    <img src="${imgPath}" onerror="javascript:this.src='/images/404.png';" title="这是图片">
+                                </div>
+                            {{/each}}
+                            {{/if}}
+                         </div>
+                       </div>
+                    </div>
+                </div>
+                <div class="gift_introduce">
+                    <div class="des">
+                        <p>
+                            <label class="tag">名称</label>
+                            <label class="cxt">${product.name}</label>
+                        </p>
+                        <p>
+                            <label class="tag">商品编号</label>
+                            <label class="cxt">${product.barcode}</label>
+                        </p>
+                        <p>
+                            <label class="tag">品牌</label>
+                            <label class="cxt">${product.brand}</label>
+                        </p>
+                        <p>
+                            <label class="tag">规格/型号</label>
+                            <label class="cxt">${product.model}</label>
+                        </p>
+                        <p>
+                            <label class="tag">库存</label>
+                            <label class="cxt">${stock}</label>
+                        </p>
+                        <p class="price">
+                            <label class="tag">价格</label>
+                            <!--<label class="cxt" style="color:#999999;">-->
+                                <!--<i class="num">${product.exchangePrice}</i>￥-->
+                            <!--</label>-->
+                            <label class="cxt" style="color:#999999;">
+                                <i class="num">${(product.exchangePrice*100).toFixed(0)}</i>积分
+                            </label>
+                        </p>
+                        <p>
+                            <label class="tag">选择数量</label>
+                            <label class="opt">
+                                <label>
+                                    <i class="del_icon"></i><i class="result">1</i><i class="add_icon"></i>
+                                </label>
+                            </label>
+                        </p>
+                    </div>
+                    <div class="add_shop">
+                        <div class="pid_none">${product.id}</div>
+                        <div class="dh add2cartAndGo">立即兑换</div>
+                        <div class="gw add2cart">加入购物车</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tip">${product.remark}</div>
+
+</script>
+
+<script id="product-template" type="text/x-jquery-tmpl">
+            <li>
+                <a href="javascript:void(0)">
+                    <div class="radius-bg topbg"></div>
+                    <div class="img">
+                        <img src="${image}" onerror="javascript:this.src='/images/404.png';">
+                        <div class="title">${name}</div>
+                    </div>
+                    <div class="info">
+                        <div class="pid_none">${id}</div>
+                        <div class="l">
+                            <i class="icon-jf"></i>${(exchangePrice*100).toFixed(0)}
+                        </div>
+                        <div class="r add2cartAndGo-A">
+                            <div class="btn">兑换</div>
+                        </div>
+                    </div>
+                    <div class="radius-bg botbg"></div>
+                </a>
+            </li>
+</script>
+<!--消息提示框-->
+<div class="conversion_alert pop-msg">
+    <div class="alert_dialog">
+        <div class="alert_icon">
+            <img src="/images/tanhao-blue.png">
+            <div class="des"></div>
+            <div class="branchno-input">
+                <input id="branchno" class="form-control inline_block" type="text" maxlength="20" size="7">
+                <button id="reset-branchno" class="btn btn-danger">提交</button>
+            </div>
+            <div class="makeSure">
+                <button onclick="javascript:$('.pop-msg').hide();" class="btn btn-danger">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+  input#cbx[type="checkbox"]{width:20px;height:20px;display: inline-block;text-align: center;vertical-align: middle; line-height: 18px;position: relative;margin-right:10px;}
+  input#cbx[type="checkbox"]::before{border-radius: 20px;content: "";position: absolute;top: 0;left: 0;background: #fff;width: 100%;height: 100%;border: 1px solid #d9d9d9}
+  input#cbx[type="checkbox"]:checked::before{border-radius: 20px;content: "\2713";background-color: #17579e;position: absolute;top: 0;left: 0;width:100%;border: 1px solid #1a5b9f;color:#fff;font-size: 20px;font-weight: bold;}
+
+</style>
+</body>
+</html>
